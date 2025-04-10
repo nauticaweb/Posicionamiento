@@ -30,7 +30,7 @@ with col2:
     lon_segundos = st.number_input("Longitud segundos", step=0.1, value=0.0)
 
 st.header("2. Observaciones y desplazamiento")
-azimut1 = st.number_input("Azimut 1 (°)", step=1.0, value=0.0)
+azimut1 = st.number_input("Azimut 1 (grados)", step=1.0, value=0.0)
 dh1t = st.number_input("Diferencia de alturas 1", step=0.1, value=0.0)
 
 rumbo = st.number_input("Rumbo del desplazamiento (grados)", step=1.0, value=0.0)
@@ -107,8 +107,8 @@ if st.button("Calcular"):
 
     # Vectores
     ax.plot([0, dx0], [0, dy0], 'b', linewidth=2, label='Desplazamiento')
-    ax.plot([dx0, dx1], [dy0, dy1], 'y', linewidth=2, label='Vector 1')
-    ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Vector 2')
+    ax.plot([dx0, dx1], [dy0, dy1], 'y', linewidth=2, label='azimut 1')
+    ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='azimut 2')
 
     # Rectas de altura (rojas punteadas)
     ax.plot([dx1 - dy1, dx1 + dy1], [dy1 + dx1, dy1 - dx1], 'r--', linewidth=2)
