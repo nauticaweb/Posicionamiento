@@ -17,8 +17,7 @@ def decimal_a_grados_minutos(decimales):
     minutos = (abs(decimales) - abs(grados)) * 60
     return grados, minutos
 
-
-# ===================== INTERFAZ CON STREAMLIT =====================
+# ===================== INTERFAZ STREAMLIT =====================
 st.title("Cálculo de posición por Rectas de Altura")
 
 st.header("1. Punto de estima (coordenadas)")
@@ -36,28 +35,36 @@ st.header("2. Observaciones")
 azimut1 = st.number_input("Azimut 1 (°)", step=1.0, value=0.0)
 dh1t = st.number_input("Diferencia de alturas 1", step=0.1, value=0.0)
 
+rumbo = st.number_input("Rumbo del desplazamiento", step=1.0, value=0.0)
+distancia = st.number_input("Distancia recorrida (millones de millas)", step=0.1, value=0.0)
+
 azimut2 = st.number_input("Azimut 2 (°)", step=1.0, value=0.0)
 dh2t = st.number_input("Diferencia de alturas 2", step=0.1, value=0.0)
 
-# ===================== BOTÓN PARA CALCULAR =====================
+# ===================== CÁLCULO =====================
 if st.button("Calcular"):
     # Convertir coordenadas a decimales
     latitud = gms_a_decimal(lat_grados, lat_minutos, lat_segundos)
     longitud = gms_a_decimal(lon_grados, lon_minutos, lon_segundos)
 
-    # Vector 1
+    # Vectores 1 y 2
     az1 = azimut1 + 180 if dh1t < 0 else azimut1
     dh1 = abs(dh1t / np.cos(np.radians(latitud)))
     dx1 = dh1 * np.sin(np.radians(az1))
     dy1 = dh1 * np.cos(np.radians(az1))
 
-    # Vector 2
+    # Rumbo desplazamiento
+    dh0 = abs(distancia / np.cos(np.radians(latitud)))
+    dx0 = dh0 * np.sin(np.radians(rumbo))
+    dy0 = dh0 * np.cos(np.radians(rumbo))
+
+    # Vectores 2
     az2 = azimut2 + 180 if dh2t < 0 else azimut2
     dh2 = abs(dh2t / np.cos(np.radians(latitud)))
     dx2 = dh2 * np.sin(np.radians(az2))
     dy2 = dh2 * np.cos(np.radians(az2))
 
-    # Pendientes de vectores y rectas de altura
+    # Pendientes de vectores
     mz1 = dy1 / dx1
     mz2 = dy2 / dx2
     m1 = -1 / mz1
@@ -81,7 +88,7 @@ if st.button("Calcular"):
     EW = "W" if lon_intersec > 0 else "E"
 
     # ===================== RESULTADOS =====================
-    st.subheader("3. Situacion")
+    st.subheader("3. Situación")
 
     st.markdown("**Coordenadas decimales:**")
     st.write(f"Latitud: `{lat_intersec:.6f}`")
