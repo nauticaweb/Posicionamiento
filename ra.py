@@ -98,28 +98,51 @@ if st.button("Calcular"):
     st.write(f"Latitud: `{abs(lat_g)}° {lat_m:.2f}' {NS}`")
     st.write(f"Longitud: `{abs(lon_g)}° {lon_m:.2f}' {EW}`")
 
-    # ===================== GRÁFICO =====================
-    fig, ax = plt.subplots(figsize=(10, 8))
-    ax.axhline(0, color='black', linewidth=1)
-    ax.axvline(0, color='black', linewidth=1)
+    # ===================== DIBUJAR GRÁFICO =====================
+# Crear la figura
+plt.figure()
 
-    ax.plot([0, dx1], [0, dy1], 'b', linewidth=2)
-    ax.plot([0, dx2], [0, dy2], 'g', linewidth=2)
+# Mantener sistema de coordenadas cuadrado
+plt.gca().set_aspect('equal', adjustable='box')
 
-    # Rectas perpendiculares (altura)
-    ax.plot([dx1 - dy1, dx1 + dy1], [dy1 + dx1, dy1 - dx1], 'r--', linewidth=2)
-    ax.plot([dx2 - dy2, dx2 + dy2], [dy2 + dx2, dy2 - dx2], 'r--', linewidth=2)
+# Dibujar ejes
+plt.axhline(0, color='k', linewidth=2)  # Eje X
+plt.axvline(0, color='k', linewidth=2)  # Eje Y
 
-    ax.plot(x_intersec, y_intersec, 'mo', markersize=10)
-    ax.text(x_intersec + 0.5, y_intersec + 0.5,
-            f"Lat: {lat_intersec:.6f}\nLon: {lon_intersec:.6f}", fontsize=12)
+# Dibujar vectores desde el origen
+plt.plot([0, dx1 - dx0], [0, dy1 - dy0], 'y', linewidth=2)  # Vector 1 en amarillo
+plt.plot([dx1 - dx0, dx1], [dy1 - dy0, dy1], 'b', linewidth=2)  # Vector desplazamiento en azul
+plt.plot([0, dx2], [0, dy2], 'g', linewidth=2)  # Vector 2 en verde
 
-    ax.set_xlim(-8, 8)
-    ax.set_ylim(-8, 8)
-    ax.set_aspect('equal', adjustable='box')
-    ax.set_xlabel("Longitud")
-    ax.set_ylabel("Latitud")
-    ax.set_title("Rectas de Altura")
-    ax.grid(True)
+# Calcular desplazamientos perpendiculares para las rectas de altura
+perp_dx1 = dy1
+perp_dy1 = -dx1
 
-    st.pyplot(fig)
+perp_dx2 = dy2
+perp_dy2 = -dx2
+
+# Dibujar rectas de altura en rojo (largas para que se crucen)
+plt.plot([dx1 - perp_dx1, dx1 + perp_dx1], [dy1 - perp_dy1, dy1 + perp_dy1], 'r--', linewidth=2)
+plt.plot([dx2 - perp_dx2, dx2 + perp_dx2], [dy2 - perp_dy2, dy2 + perp_dy2], 'r--', linewidth=2)
+
+# Marcar el punto de intersección en el gráfico
+plt.plot(x_intersec, y_intersec, 'mo', markersize=8)  # Punto morado para la intersección
+
+# Añadir etiqueta con coordenadas geográficas
+str_intersec = f"Lat: {lat_intersec:.6f}\nLon: {lon_intersec:.6f}"
+plt.text(x_intersec + 1, y_intersec + 1, str_intersec)
+
+# Ajustar límites dinámicamente para mostrar todo el gráfico
+lim_x = max([abs(dx1), abs(dx2), abs(perp_dx1), abs(perp_dx2), abs(x_intersec)]) + 5
+lim_y = max([abs(dy1), abs(dy2), abs(perp_dy1), abs(perp_dy2), abs(y_intersec)]) + 5
+plt.xlim(-lim_x, lim_x)
+plt.ylim(-lim_y, lim_y)
+
+# Etiquetas
+plt.title("Rectas de Altura")
+plt.xlabel("Longitud")
+plt.ylabel("Latitud")
+
+# Mostrar gráfico
+plt.grid(True)
+plt.show()
