@@ -36,7 +36,7 @@ azimut1 = st.number_input("Azimut 1 (°)", step=1.0, value=0.0)
 dh1t = st.number_input("Diferencia de alturas 1", step=0.1, value=0.0)
 
 rumbo = st.number_input("Rumbo del desplazamiento", step=1.0, value=0.0)
-distancia = st.number_input("Distancia recorrida (millones de millas)", step=0.1, value=0.0)
+distancia = st.number_input("Distancia recorrida (millas)", step=0.1, value=0.0)
 
 azimut2 = st.number_input("Azimut 2 (°)", step=1.0, value=0.0)
 dh2t = st.number_input("Diferencia de alturas 2", step=0.1, value=0.0)
