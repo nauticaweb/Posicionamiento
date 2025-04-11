@@ -128,3 +128,33 @@ if st.button("Calcular"):
     ax.legend()
 
     st.pyplot(fig)
+# ===================== GRÁFICO DE PARTES IGUALES Y AUMENTADAS =====================
+fig2, ax2 = plt.subplots(figsize=(10, 4))
+
+# Definir puntos de la línea horizontal (Partes Iguales)
+x_iguales = np.linspace(0, 8, 9)
+y_iguales = np.zeros_like(x_iguales)
+
+# Definir puntos de la línea inclinada (Partes Aumentadas)
+# Ángulo = latitud en radianes
+angulo_latitud_rad = np.radians(latitud)
+y_aumentadas = x_iguales * np.tan(angulo_latitud_rad)
+
+# Dibujar líneas
+ax2.plot(x_iguales, y_iguales, 'k-', linewidth=2, label='Partes Iguales')
+ax2.plot(x_iguales, y_aumentadas, 'r-', linewidth=2, label='Partes Aumentadas')
+
+# Dibujar segmentos que conectan cada par de puntos (como el signo "<")
+for xi, yi in zip(x_iguales, y_aumentadas):
+    ax2.plot([xi, xi], [0, yi], 'gray', linestyle='--', linewidth=1)
+
+# Etiquetas y formato
+ax2.set_title("Gráfico de Partes Iguales y Partes Aumentadas")
+ax2.set_xlabel("Longitudes (mismo espacio que el eje X del gráfico principal)")
+ax2.set_ylabel("Altura relativa")
+ax2.set_xlim(0, 8)
+ax2.set_ylim(0, max(y_aumentadas) * 1.1)
+ax2.grid(True)
+ax2.legend()
+
+st.pyplot(fig2)
