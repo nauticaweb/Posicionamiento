@@ -10,95 +10,84 @@ def gms_a_decimal(grados, minutos, segundos):
         grados_dec = grados + (minutos / 60) + (segundos / 3600)
     return grados_dec
 
-def decimal_a_grados_minutos(decimales):
-    grados = int(decimales)
-    minutos = (abs(decimales) - abs(grados)) * 60
+def decimal_a_grados_minutos(decimal):
+    grados = int(decimal)
+    minutos = abs((decimal - grados) * 60)
     return grados, minutos
 
 # ===================== INTERFAZ STREAMLIT =====================
 st.title("Cálculo de posición por Rectas de Altura")
 
-st.header("1. Punto de estima (coordenadas)")
-col1, col2 = st.columns(2)
-with col1:
-    lat_grados = st.number_input("Latitud grados", step=1, format="%d", value=0)
-    lat_minutos = st.number_input("Latitud minutos", step=1.0, value=0.0)
-    lat_segundos = st.number_input("Latitud segundos", step=0.1, value=0.0)
-with col2:
-    lon_grados = st.number_input("Longitud grados", step=1, format="%d", value=0)
-    lon_minutos = st.number_input("Longitud minutos", step=1.0, value=0.0)
-    lon_segundos = st.number_input("Longitud segundos", step=0.1, value=0.0)
+# Entrada de coordenadas
+lat_grados = st.number_input("Latitud grados", step=1, format="%d", value=44)
+lat_minutos = st.number_input("Latitud minutos", step=1.0, value=58.88)
+lat_segundos = st.number_input("Latitud segundos", step=0.1, value=0.0)
 
-st.header("2. Observaciones y desplazamiento")
-azimut1 = st.number_input("Azimut 1 (grados)", step=1.0, value=0.0)
-dh1t = st.number_input("Diferencia de alturas 1", step=0.1, value=0.0)
+lon_grados = st.number_input("Longitud grados", step=1, format="%d", value=8)
+lon_minutos = st.number_input("Longitud minutos", step=1.0, value=5.81)
+lon_segundos = st.number_input("Longitud segundos", step=0.1, value=0.0)
 
-rumbo = st.number_input("Rumbo del desplazamiento (grados)", step=1.0, value=0.0)
-distancia = st.number_input("Distancia recorrida (millas)", step=0.1, value=0.0)
-
-azimut2 = st.number_input("Azimut 2 (grados)", step=1.0, value=0.0)
-dh2t = st.number_input("Diferencia de alturas 2", step=0.1, value=0.0)
+# Observaciones y desplazamiento
+azimut1 = st.number_input("Azimut 1 (grados)", step=1.0, value=185.0)
+dh1t = st.number_input("Diferencia de altura 1", step=0.1, value=2.0)
+rumbo = st.number_input("Rumbo del desplazamiento (grados)", step=1.0, value=63.0)
+distancia = st.number_input("Distancia recorrida (millas)", step=0.1, value=1.0)
+azimut2 = st.number_input("Azimut 2 (grados)", step=1.0, value=300.0)
+dh2t = st.number_input("Diferencia de altura 2", step=0.1, value=3.0)
 
 if st.button("Calcular"):
+    # Conversión de coordenadas a formato decimal
     latitud = gms_a_decimal(lat_grados, lat_minutos, lat_segundos)
     longitud = gms_a_decimal(lon_grados, lon_minutos, lon_segundos)
 
-    # Calcular dh ajustado por la latitud
+    # Ajuste de las diferencias de altura por latitud
     dh1 = abs(dh1t / np.cos(np.radians(latitud)))
     dh2 = abs(dh2t / np.cos(np.radians(latitud)))
     dh0 = abs(distancia / np.cos(np.radians(latitud)))
 
-    # Ajustar azimuts si diferencia de alturas es negativa
+    # Ajustar azimuts
     if dh1t < 0:
         azimut1 += 180
     if dh2t < 0:
         azimut2 += 180
 
-    # Componentes del vector desplazamiento
+    # Componentes del desplazamiento
     dx0 = dh0 * np.sin(np.radians(rumbo))
     dy0 = dh0 * np.cos(np.radians(rumbo))
 
-    # Componentes del primer vector (con desplazamiento incluido)
     dx1 = dh1 * np.sin(np.radians(azimut1)) + dx0
     dy1 = dh1 * np.cos(np.radians(azimut1)) + dy0
 
-    # Componentes del segundo vector
     dx2 = dh2 * np.sin(np.radians(azimut2))
     dy2 = dh2 * np.cos(np.radians(azimut2))
 
-    # Pendientes de los vectores
-    mz1 = dy1 / dx1
-    mz2 = dy2 / dx2
+    # Cálculo de la intersección
+    if dx1 != 0 and dx2 != 0:
+        mz1 = dy1 / dx1
+        mz2 = dy2 / dx2
 
-    # Pendientes de rectas de altura (perpendiculares)
-    m1 = -1 / mz1
-    m2 = -1 / mz2
+        m1 = -1 / mz1
+        m2 = -1 / mz2
 
-    # Intersección de rectas de altura
-    b1 = dy1 - m1 * dx1
-    b2 = dy2 - m2 * dx2
-    x_intersec = (b2 - b1) / (m1 - m2)
-    y_intersec = m1 * x_intersec + b1
+        b1 = dy1 - m1 * dx1
+        b2 = dy2 - m2 * dx2
+        x_intersec = (b2 - b1) / (m1 - m2)
+        y_intersec = m1 * x_intersec + b1
+    else:
+        st.error("Error en el cálculo de la intersección: división por cero.")
 
-    # Coordenadas geográficas
+    # Conversión de la intersección a coordenadas geográficas
     y_i = y_intersec * np.cos(np.radians(latitud))
     lat_intersec = latitud + (y_i / 60)
     lon_intersec = longitud - (x_intersec / 60)
 
-    # Mostrar resultados
+    # Conversión de la latitud y longitud a grados y minutos
     lat_g, lat_m = decimal_a_grados_minutos(lat_intersec)
     lon_g, lon_m = decimal_a_grados_minutos(lon_intersec)
-    NS = "N" if lat_intersec > 0 else "S"
-    EW = "W" if lon_intersec > 0 else "E"
 
-    st.subheader("3. Situación estimada")
-    st.markdown("**Coordenadas decimales:**")
-    st.write(f"Latitud: `{lat_intersec:.6f}`")
-    st.write(f"Longitud: `{lon_intersec:.6f}`")
-
-    st.markdown("**Coordenadas en GMS:**")
-    st.write(f"Latitud: `{abs(lat_g)}° {lat_m:.2f}' {NS}`")
-    st.write(f"Longitud: `{abs(lon_g)}° {lon_m:.2f}' {EW}`")
+    # Mostrar resultados
+    st.write(f"Latitud de la intersección: {lat_g}° {lat_m:.2f}'")
+    st.write(f"Longitud de la intersección: {lon_g}° {lon_m:.2f}'")
 
     # ===================== GRÁFICO =====================
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -107,8 +96,8 @@ if st.button("Calcular"):
 
     # Vectores
     ax.plot([0, dx0], [0, dy0], 'b', linewidth=2, label='Desplazamiento')
-    ax.plot([dx0, dx1], [dy0, dy1], 'y', linewidth=2, label='Azimut 1')
-    ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
+    ax.plot([dx0, dx1], [dy0, dy1], 'y', linewidth=2, label='azimut 1')
+    ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='azimut 2')
 
     # Rectas de altura (rojas punteadas)
     ax.plot([dx1 - dy1, dx1 + dy1], [dy1 + dx1, dy1 - dx1], 'r--', linewidth=2)
@@ -130,7 +119,7 @@ if st.button("Calcular"):
     st.pyplot(fig)
 
     # ===================== GRÁFICO DE PARTES IGUALES Y PARTES AUMENTADAS =====================
-    fig2, ax2 = plt.subplots(figsize=(10, 8))  # Aseguramos que tenga el mismo tamaño que el primer gráfico
+    fig2, ax2 = plt.subplots(figsize=(10, 4))
 
     # Línea horizontal: Partes Iguales
     x_iguales = np.linspace(0, 8, 9)  # De 0 a 8 en partes iguales
@@ -149,12 +138,11 @@ if st.button("Calcular"):
         ax2.plot([xi, xi], [0, yi], 'gray', linestyle='--', linewidth=1)
 
     # Formato del gráfico
-    ax2.set_title("angulo de latitud")
-    ax2.set_xlabel("partes iguales")
-    ax2.set_ylabel("Partes Aumentada")
+    ax2.set_title("Relación entre Partes Iguales y Partes Aumentadas")
+    ax2.set_xlabel("Unidades (0 a 8)")
+    ax2.set_ylabel("Proporción Aumentada")
     ax2.set_xlim(0, 8)
     ax2.set_ylim(0, max(y_aumentadas) * 1.1)
-    ax2.set_aspect('equal', adjustable='box')  # Aseguramos que ambos ejes tengan la misma escala
     ax2.grid(True)
     ax2.legend()
 
