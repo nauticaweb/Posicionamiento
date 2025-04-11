@@ -127,27 +127,33 @@ if st.button("Calcular"):
 
     st.pyplot(fig)
 
-    # ===================== GRÁFICO DE PARTES IGUALES Y PARTES AUMENTADAS =====================
-    fig2, ax2 = plt.subplots(figsize=(10, 4))
+  # ===================== GRÁFICO DE PARTES IGUALES Y PARTES AUMENTADAS =====================
+fig2, ax2 = plt.subplots(figsize=(10, 8))  # Mismo tamaño que el gráfico anterior
 
-    x_iguales = np.linspace(0, 8, 9)
-    y_iguales = np.zeros_like(x_iguales)
+# Línea horizontal: Partes Iguales
+x_iguales = np.linspace(0, 8, 9)  # De 0 a 8 en partes iguales
+y_iguales = np.zeros_like(x_iguales)
 
-    angulo_latitud_rad = np.radians(abs(latitud))
-    y_aumentadas = x_iguales * np.tan(angulo_latitud_rad)
+# Línea inclinada: Partes Aumentadas (ángulo igual a la latitud absoluta)
+angulo_latitud_rad = np.radians(abs(latitud))
+y_aumentadas = x_iguales * np.tan(angulo_latitud_rad)
 
-    ax2.plot(x_iguales, y_iguales, 'k-', linewidth=2, label='Partes Iguales')
-    ax2.plot(x_iguales, y_aumentadas, 'r-', linewidth=2, label='Partes Aumentadas')
+# Dibujar líneas
+ax2.plot(x_iguales, y_iguales, 'k-', linewidth=2, label='Partes Iguales')
+ax2.plot(x_iguales, y_aumentadas, 'r-', linewidth=2, label='Partes Aumentadas')
 
-    for xi, yi in zip(x_iguales, y_aumentadas):
-        ax2.plot([xi, xi], [0, yi], 'gray', linestyle='--', linewidth=1)
+# Líneas verticales que unen ambos ejes (como "<")
+for xi, yi in zip(x_iguales, y_aumentadas):
+    ax2.plot([xi, xi], [0, yi], 'gray', linestyle='--', linewidth=1)
 
-    ax2.set_title("Relación entre Partes Iguales y Partes Aumentadas")
-    ax2.set_xlabel("Unidades (0 a 8)")
-    ax2.set_ylabel("Proporción Aumentada")
-    ax2.set_xlim(0, 8)
-    ax2.set_ylim(0, max(y_aumentadas) * 1.1)
-    ax2.grid(True)
-    ax2.legend()
+# Formato del gráfico
+ax2.set_title("Relación entre Partes Iguales y Partes Aumentadas")
+ax2.set_xlabel("Unidades (0 a 8)")
+ax2.set_ylabel("Proporción Aumentada")
+ax2.set_xlim(0, 8)
+ax2.set_ylim(0, max(y_aumentadas) * 1.1)
+ax2.set_aspect('equal', adjustable='box')  # Esto iguala las proporciones
+ax2.grid(True)
+ax2.legend()
 
-    st.pyplot(fig2)
+st.pyplot(fig2)
