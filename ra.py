@@ -1,4 +1,6 @@
-import streamlit as st import numpy as np import matplotlib.pyplot as plt
+import streamlit as st 
+import numpy as np 
+import matplotlib.pyplot as plt
 
 def gms_a_decimal(grados, minutos, segundos): return grados + minutos / 60 + segundos / 3600
 
