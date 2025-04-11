@@ -10,9 +10,9 @@ def gms_a_decimal(grados, minutos, segundos):
         grados_dec = grados + (minutos / 60) + (segundos / 3600)
     return grados_dec
 
-def decimal_a_grados_minutos(decimal):
-    grados = int(decimal)
-    minutos = abs((decimal - grados) * 60)
+def decimal_a_grados_minutos(decimales):
+    grados = int(decimales)
+    minutos = (abs(decimales) - abs(grados)) * 60
     return grados, minutos
 
 # ===================== INTERFAZ STREAMLIT =====================
@@ -107,8 +107,8 @@ if st.button("Calcular"):
 
     # Vectores
     ax.plot([0, dx0], [0, dy0], 'b', linewidth=2, label='Desplazamiento')
-    ax.plot([dx0, dx1], [dy0, dy1], 'y', linewidth=2, label='azimut 1')
-    ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='azimut 2')
+    ax.plot([dx0, dx1], [dy0, dy1], 'y', linewidth=2, label='Azimut 1')
+    ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
 
     # Rectas de altura (rojas punteadas)
     ax.plot([dx1 - dy1, dx1 + dy1], [dy1 + dx1, dy1 - dx1], 'r--', linewidth=2)
@@ -130,7 +130,7 @@ if st.button("Calcular"):
     st.pyplot(fig)
 
     # ===================== GRÁFICO DE PARTES IGUALES Y PARTES AUMENTADAS =====================
-    fig2, ax2 = plt.subplots(figsize=(10, 8))
+    fig2, ax2 = plt.subplots(figsize=(10, 8))  # Ajustamos el tamaño a 10, 8 para igualar el tamaño
 
     # Línea horizontal: Partes Iguales
     x_iguales = np.linspace(0, 8, 9)  # De 0 a 8 en partes iguales
@@ -146,4 +146,15 @@ if st.button("Calcular"):
 
     # Líneas verticales que unen ambos ejes (como "<")
     for xi, yi in zip(x_iguales, y_aumentadas):
-        ax2.plot([xi,
+        ax2.plot([xi, xi], [0, yi], 'gray', linestyle='--', linewidth=1)
+
+    # Formato del gráfico
+    ax2.set_title("Relación entre Partes Iguales y Partes Aumentadas")
+    ax2.set_xlabel("Unidades (0 a 8)")
+    ax2.set_ylabel("Proporción Aumentada")
+    ax2.set_xlim(0, 8)
+    ax2.set_ylim(0, max(y_aumentadas) * 1.1)
+    ax2.grid(True)
+    ax2.legend()
+
+    st.pyplot(fig2)
