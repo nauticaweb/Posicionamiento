@@ -39,4 +39,122 @@ distancia = st.number_input("Distancia recorrida (millas)", step=0.1, value=0.0)
 azimut2 = st.number_input("Azimut 2 (grados)", step=1.0, value=0.0)
 dh2t = st.number_input("Diferencia de alturas 2", step=0.1, value=0.0)
 
-if st.button
+if st.button("Calcular"):
+    latitud = gms_a_decimal(lat_grados, lat_minutos, lat_segundos)
+    longitud = gms_a_decimal(lon_grados, lon_minutos, lon_segundos)
+
+    # Calcular dh ajustado por la latitud
+    dh1 = abs(dh1t / np.cos(np.radians(latitud)))
+    dh2 = abs(dh2t / np.cos(np.radians(latitud)))
+    dh0 = abs(distancia / np.cos(np.radians(latitud)))
+
+    # Ajustar azimuts si diferencia de alturas es negativa
+    if dh1t < 0:
+        azimut1 += 180
+    if dh2t < 0:
+        azimut2 += 180
+
+    # Componentes del vector desplazamiento
+    dx0 = dh0 * np.sin(np.radians(rumbo))
+    dy0 = dh0 * np.cos(np.radians(rumbo))
+
+    # Componentes del primer vector (con desplazamiento incluido)
+    dx1 = dh1 * np.sin(np.radians(azimut1)) + dx0
+    dy1 = dh1 * np.cos(np.radians(azimut1)) + dy0
+
+    # Componentes del segundo vector
+    dx2 = dh2 * np.sin(np.radians(azimut2))
+    dy2 = dh2 * np.cos(np.radians(azimut2))
+
+    # Pendientes de los vectores
+    mz1 = dy1 / dx1
+    mz2 = dy2 / dx2
+
+    # Pendientes de rectas de altura (perpendiculares)
+    m1 = -1 / mz1
+    m2 = -1 / mz2
+
+    # Intersección de rectas de altura
+    b1 = dy1 - m1 * dx1
+    b2 = dy2 - m2 * dx2
+    x_intersec = (b2 - b1) / (m1 - m2)
+    y_intersec = m1 * x_intersec + b1
+
+    # Coordenadas geográficas
+    y_i = y_intersec * np.cos(np.radians(latitud))
+    lat_intersec = latitud + (y_i / 60)
+    lon_intersec = longitud - (x_intersec / 60)
+
+    # Mostrar resultados
+    lat_g, lat_m = decimal_a_grados_minutos(lat_intersec)
+    lon_g, lon_m = decimal_a_grados_minutos(lon_intersec)
+    NS = "N" if lat_intersec > 0 else "S"
+    EW = "W" if lon_intersec > 0 else "E"
+
+    st.subheader("3. Situación estimada")
+    st.markdown("**Coordenadas decimales:**")
+    st.write(f"Latitud: `{lat_intersec:.6f}`")
+    st.write(f"Longitud: `{lon_intersec:.6f}`")
+
+    st.markdown("**Coordenadas en GMS:**")
+    st.write(f"Latitud: `{abs(lat_g)}° {lat_m:.2f}' {NS}`")
+    st.write(f"Longitud: `{abs(lon_g)}° {lon_m:.2f}' {EW}`")
+
+    # ===================== GRÁFICO =====================
+    fig, ax = plt.subplots(figsize=(10, 8))
+    ax.axhline(0, color='black', linewidth=1)
+    ax.axvline(0, color='black', linewidth=1)
+
+    # Vectores
+    ax.plot([0, dx0], [0, dy0], 'b', linewidth=2, label='Desplazamiento')
+    ax.plot([dx0, dx1], [dy0, dy1], 'y', linewidth=2, label='azimut 1')
+    ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='azimut 2')
+
+    # Rectas de altura (rojas punteadas)
+    ax.plot([dx1 - dy1, dx1 + dy1], [dy1 + dx1, dy1 - dx1], 'r--', linewidth=2)
+    ax.plot([dx2 - dy2, dx2 + dy2], [dy2 + dx2, dy2 - dx2], 'r--', linewidth=2)
+
+    ax.plot(x_intersec, y_intersec, 'mo', markersize=10)
+    ax.text(x_intersec + 0.5, y_intersec + 0.5,
+            f"Lat: {lat_intersec:.6f}\nLon: {lon_intersec:.6f}", fontsize=12)
+
+    ax.set_xlim(-10, 10)
+    ax.set_ylim(-10, 10)
+    ax.set_aspect('equal', adjustable='box')
+    ax.set_xlabel("Longitud")
+    ax.set_ylabel("Latitud")
+    ax.set_title("Rectas de Altura")
+    ax.grid(True)
+    ax.legend()
+
+    st.pyplot(fig)
+
+    # ===================== GRÁFICO DE PARTES IGUALES Y PARTES AUMENTADAS =====================
+    fig2, ax2 = plt.subplots(figsize=(10, 8))
+
+    # Línea horizontal: Partes Iguales
+    x_iguales = np.linspace(0, 8, 9)  # De 0 a 8 en partes iguales
+    y_iguales = np.zeros_like(x_iguales)
+
+    # Línea inclinada: Partes Aumentadas (ángulo igual a la latitud absoluta)
+    angulo_latitud_rad = np.radians(abs(latitud))
+    y_aumentadas = x_iguales * np.tan(angulo_latitud_rad)
+
+    # Dibujar líneas
+    ax2.plot(x_iguales, y_iguales, 'k-', linewidth=2, label='Partes Iguales')
+    ax2.plot(x_iguales, y_aumentadas, 'r-', linewidth=2, label='Partes Aumentadas')
+
+    # Líneas verticales que unen ambos ejes (como "<")
+    for xi, yi in zip(x_iguales, y_aumentadas):
+        ax2.plot([xi, xi], [0, yi], 'gray', linestyle='--', linewidth=1)
+
+    # Formato del gráfico
+    ax2.set_title("Relación entre Partes Iguales y Partes Aumentadas")
+    ax2.set_xlabel("Unidades (0 a 8)")
+    ax2.set_ylabel("Proporción Aumentada")
+    ax2.set_xlim(0, 8)
+    ax2.set_ylim(0, max(y_aumentadas) * 1.1)
+    ax2.grid(True)
+    ax2.legend()
+
+    st.pyplot(fig2)
