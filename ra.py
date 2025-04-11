@@ -16,7 +16,7 @@ def decimal_a_grados_minutos(decimales):
     return grados, minutos
 
 # ===================== INTERFAZ STREAMLIT =====================
-st.title("culo de posición por Rectas de Altura")
+st.title("Cálculo de posición por Rectas de Altura")
 
 st.header("1. Punto de estima (coordenadas)")
 col1, col2 = st.columns(2)
@@ -105,12 +105,10 @@ if st.button("Calcular"):
     ax.axhline(0, color='black', linewidth=1)
     ax.axvline(0, color='black', linewidth=1)
 
-    # Vectores
     ax.plot([0, dx0], [0, dy0], 'b', linewidth=2, label='Desplazamiento')
     ax.plot([dx0, dx1], [dy0, dy1], 'y', linewidth=2, label='azimut 1')
     ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='azimut 2')
 
-    # Rectas de altura (rojas punteadas)
     ax.plot([dx1 - dy1, dx1 + dy1], [dy1 + dx1, dy1 - dx1], 'r--', linewidth=2)
     ax.plot([dx2 - dy2, dx2 + dy2], [dy2 + dx2, dy2 - dx2], 'r--', linewidth=2)
 
@@ -128,32 +126,28 @@ if st.button("Calcular"):
     ax.legend()
 
     st.pyplot(fig)
-# ===================== GRÁFICO DE PARTES IGUALES Y PARTES AUMENTADAS =====================
-fig2, ax2 = plt.subplots(figsize=(10, 4))
 
-# Línea horizontal: Partes Iguales
-x_iguales = np.linspace(0, 8, 9)  # De 0 a 8 en partes iguales
-y_iguales = np.zeros_like(x_iguales)
+    # ===================== GRÁFICO DE PARTES IGUALES Y PARTES AUMENTADAS =====================
+    fig2, ax2 = plt.subplots(figsize=(10, 4))
 
-# Línea inclinada: Partes Aumentadas (ángulo igual a la latitud absoluta)
-angulo_latitud_rad = np.radians(abs(latitud))
-y_aumentadas = x_iguales * np.tan(angulo_latitud_rad)
+    x_iguales = np.linspace(0, 8, 9)
+    y_iguales = np.zeros_like(x_iguales)
 
-# Dibujar líneas
-ax2.plot(x_iguales, y_iguales, 'k-', linewidth=2, label='Partes Iguales')
-ax2.plot(x_iguales, y_aumentadas, 'r-', linewidth=2, label='Partes Aumentadas')
+    angulo_latitud_rad = np.radians(abs(latitud))
+    y_aumentadas = x_iguales * np.tan(angulo_latitud_rad)
 
-# Líneas verticales que unen ambos ejes (como "<")
-for xi, yi in zip(x_iguales, y_aumentadas):
-    ax2.plot([xi, xi], [0, yi], 'gray', linestyle='--', linewidth=1)
+    ax2.plot(x_iguales, y_iguales, 'k-', linewidth=2, label='Partes Iguales')
+    ax2.plot(x_iguales, y_aumentadas, 'r-', linewidth=2, label='Partes Aumentadas')
 
-# Formato del gráfico
-ax2.set_title("Relación entre Partes Iguales y Partes Aumentadas")
-ax2.set_xlabel("Unidades (0 a 8)")
-ax2.set_ylabel("Proporción Aumentada")
-ax2.set_xlim(0, 8)
-ax2.set_ylim(0, max(y_aumentadas) * 1.1)
-ax2.grid(True)
-ax2.legend()
+    for xi, yi in zip(x_iguales, y_aumentadas):
+        ax2.plot([xi, xi], [0, yi], 'gray', linestyle='--', linewidth=1)
 
-st.pyplot(fig2)
+    ax2.set_title("Relación entre Partes Iguales y Partes Aumentadas")
+    ax2.set_xlabel("Unidades (0 a 8)")
+    ax2.set_ylabel("Proporción Aumentada")
+    ax2.set_xlim(0, 8)
+    ax2.set_ylim(0, max(y_aumentadas) * 1.1)
+    ax2.grid(True)
+    ax2.legend()
+
+    st.pyplot(fig2)
