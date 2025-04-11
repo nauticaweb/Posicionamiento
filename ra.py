@@ -130,7 +130,7 @@ if st.button("Calcular"):
     st.pyplot(fig)
 
     # ===================== GRÁFICO DE PARTES IGUALES Y PARTES AUMENTADAS =====================
-    fig2, ax2 = plt.subplots(figsize=(10, 8))  # Ajustamos el tamaño a 10, 8 para igualar el tamaño
+    fig2, ax2 = plt.subplots(figsize=(10, 8))  # Aseguramos que tenga el mismo tamaño que el primer gráfico
 
     # Línea horizontal: Partes Iguales
     x_iguales = np.linspace(0, 8, 9)  # De 0 a 8 en partes iguales
@@ -154,6 +154,7 @@ if st.button("Calcular"):
     ax2.set_ylabel("Proporción Aumentada")
     ax2.set_xlim(0, 8)
     ax2.set_ylim(0, max(y_aumentadas) * 1.1)
+    ax2.set_aspect('equal', adjustable='box')  # Aseguramos que ambos ejes tengan la misma escala
     ax2.grid(True)
     ax2.legend()
 
