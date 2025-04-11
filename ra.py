@@ -138,9 +138,9 @@ if st.button("Calcular"):
         ax2.plot([xi, xi], [0, yi], 'gray', linestyle='--', linewidth=1)
 
     # Formato del gráfico
-    ax2.set_title("Relación entre Partes Iguales y Partes Aumentadas")
-    ax2.set_xlabel("Unidades (0 a 8)")
-    ax2.set_ylabel("Proporción Aumentada")
+    ax2.set_title("Angulo = latitud")
+    ax2.set_xlabel("Partes Iguales")
+    ax2.set_ylabel("Partes Aumentadas")
     ax2.set_xlim(0, 8)
     ax2.set_ylim(0, max(y_aumentadas) * 1.1)
     ax2.grid(True)
