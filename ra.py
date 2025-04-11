@@ -16,7 +16,7 @@ def decimal_a_grados_minutos(decimales):
     return grados, minutos
 
 # ===================== INTERFAZ STREAMLIT =====================
-st.title("Cálculo de posición por Rectas de Altura")
+st.title("culo de posición por Rectas de Altura")
 
 st.header("1. Punto de estima (coordenadas)")
 col1, col2 = st.columns(2)
