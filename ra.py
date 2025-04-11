@@ -146,15 +146,4 @@ if st.button("Calcular"):
 
     # Líneas verticales que unen ambos ejes (como "<")
     for xi, yi in zip(x_iguales, y_aumentadas):
-        ax2.plot([xi, xi], [0, yi], 'gray', linestyle='--', linewidth=1)
-
-    # Formato del gráfico
-    ax2.set_title("Relación entre Partes Iguales y Partes Aumentadas")
-    ax2.set_xlabel("Unidades (0 a 8)")
-    ax2.set_ylabel("Proporción Aumentada")
-    ax2.set_xlim(0, 8)
-    ax2.set_ylim(0, max(y_aumentadas) * 1.1)
-    ax2.grid(True)
-    ax2.legend()
-
-    st.pyplot(fig2)
+        ax2.plot([xi,
