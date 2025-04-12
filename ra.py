@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 
 # ===================== FUNCIONES AUXILIARES =====================
 def gms_a_decimal(grados, minutos, segundos):
-    """Convierte coordenadas en grados, minutos y segundos a decimal"""
     if grados < 0:
         grados_dec = grados - (minutos / 60) - (segundos / 3600)
     else:
@@ -12,33 +11,9 @@ def gms_a_decimal(grados, minutos, segundos):
     return grados_dec
 
 def decimal_a_grados_minutos(decimal):
-    """Convierte coordenadas decimales a grados y minutos"""
     grados = int(decimal)
     minutos = abs((decimal - grados) * 60)
     return grados, minutos
-
-def calcular_perpendicular(x1, y1, azimut):
-    """Calcula la ecuación de la recta perpendicular al vector de azimut"""
-    # Ángulo perpendicular al azimut
-    perpendiculo_azimut = azimut + 90 if azimut <= 90 else azimut - 90
-    
-    # Calculamos la pendiente de la perpendicular
-    pendiente = np.tan(np.radians(perpendiculo_azimut))
-    
-    # Ecuación de la recta: y = mx + b, donde m es la pendiente
-    b = y1 - pendiente * x1  # Calculamos el término independiente
-    return pendiente, b
-
-def calcular_interseccion(m1, b1, m2, b2):
-    """Calcula la intersección de dos rectas dadas por sus pendientes y términos independientes"""
-    # Si las pendientes son iguales, las rectas son paralelas
-    if m1 == m2:
-        return None
-    
-    # Resolvemos el sistema de ecuaciones
-    x_interseccion = (b2 - b1) / (m1 - m2)
-    y_interseccion = m1 * x_interseccion + b1
-    return x_interseccion, y_interseccion
 
 # ===================== INTERFAZ STREAMLIT =====================
 st.title("Cálculo de posición por Rectas de Altura")
@@ -65,77 +40,111 @@ if st.button("Calcular"):
     latitud = gms_a_decimal(lat_grados, lat_minutos, lat_segundos)
     longitud = gms_a_decimal(lon_grados, lon_minutos, lon_segundos)
 
-    # Ajustar diferencias de altura
-    dh1 = dh1t
-    dh2 = dh2t
+    # Ajuste de las diferencias de altura por latitud
+    dh1 = abs(dh1t / np.cos(np.radians(latitud)))
+    dh2 = abs(dh2t / np.cos(np.radians(latitud)))
+    dh0 = abs(distancia / np.cos(np.radians(latitud)))
 
-    # Desplazamiento
-    dh0 = distancia * 60  # Convertir millas a minutos de latitud
+    # Ajustar azimuts
+    if dh1t < 0:
+        azimut1 += 180
+    if dh2t < 0:
+        azimut2 += 180
 
-    # Calcular los desplazamientos en x e y en función del rumbo
+    # Componentes del desplazamiento
     dx0 = dh0 * np.sin(np.radians(rumbo))
     dy0 = dh0 * np.cos(np.radians(rumbo))
 
-    # Calcular las coordenadas de los puntos de las observaciones
-    dx1 = dh1 * np.sin(np.radians(azimut1))
-    dy1 = dh1 * np.cos(np.radians(azimut1))
+    # Vectores de observación y desplazamiento
+    dx1 = dh1 * np.sin(np.radians(azimut1)) + dx0
+    dy1 = dh1 * np.cos(np.radians(azimut1)) + dy0
 
     dx2 = dh2 * np.sin(np.radians(azimut2))
     dy2 = dh2 * np.cos(np.radians(azimut2))
 
-    # ===================== CÁLCULO DE RECTAS PERPENDICULARES =====================
-    # Calculamos la pendiente y el término independiente de las rectas perpendiculares
-    m1, b1 = calcular_perpendicular(dx1, dy1, azimut1)
-    m2, b2 = calcular_perpendicular(dx2, dy2, azimut2)
+    # Cálculo de la intersección
+    if dx1 != 0 and dx2 != 0:
+        mz1 = dy1 / dx1
+        mz2 = dy2 / dx2
 
-    # ===================== CÁLCULO DE INTERSECCIÓN =====================
-    interseccion = calcular_interseccion(m1, b1, m2, b2)
+        m1 = -1 / mz1
+        m2 = -1 / mz2
 
-    if interseccion is None:
-        st.error("Las rectas son paralelas, no tienen intersección.")
-        x_intersec, y_intersec = None, None
+        b1 = dy1 - m1 * dx1
+        b2 = dy2 - m2 * dx2
+        x_intersec = (b2 - b1) / (m1 - m2)
+        y_intersec = m1 * x_intersec + b1
     else:
-        x_intersec, y_intersec = interseccion
+        st.error("Error en el cálculo de la intersección: división por cero.")
 
-    if x_intersec is not None and y_intersec is not None:
-        # Convertir la intersección a coordenadas geográficas
-        lat_intersec = latitud + (y_intersec / 60)
-        lon_intersec = longitud + (x_intersec / 60)
+    # Conversión de la intersección a coordenadas geográficas
+    y_i = y_intersec * np.cos(np.radians(latitud))
+    lat_intersec = latitud + (y_i / 60)
+    lon_intersec = longitud - (x_intersec / 60)
 
-        # Convertir a grados y minutos
-        lat_g, lat_m = decimal_a_grados_minutos(lat_intersec)
-        lon_g, lon_m = decimal_a_grados_minutos(lon_intersec)
+    # Conversión de la latitud y longitud a grados y minutos
+    lat_g, lat_m = decimal_a_grados_minutos(lat_intersec)
+    lon_g, lon_m = decimal_a_grados_minutos(lon_intersec)
 
-        # Mostrar resultados
-        st.write(f"Latitud de la intersección: {lat_g}° {lat_m:.2f}'")
-        st.write(f"Longitud de la intersección: {lon_g}° {lon_m:.2f}'")
+    # Mostrar resultados
+    st.write(f"Latitud de la intersección: {lat_g}° {lat_m:.2f}'")
+    st.write(f"Longitud de la intersección: {lon_g}° {lon_m:.2f}'")
 
-        # ===================== GRÁFICO =====================
-        fig, ax = plt.subplots(figsize=(10, 8))
-        ax.axhline(0, color='black', linewidth=1)
-        ax.axvline(0, color='black', linewidth=1)
+    # ===================== GRÁFICO =====================
+    fig, ax = plt.subplots(figsize=(10, 8))
+    ax.axhline(0, color='black', linewidth=1)
+    ax.axvline(0, color='black', linewidth=1)
 
-        # Vectores
-        ax.plot([0, dx0], [0, dy0], 'b', linewidth=2, label='Desplazamiento')
-        ax.plot([dx0, dx1], [dy0, dy1], 'y', linewidth=2, label='Azimut 1')
-        ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
+    # Vectores
+    ax.plot([0, dx0], [0, dy0], 'b', linewidth=2, label='Desplazamiento')
+    ax.plot([dx0, dx1], [dy0, dy1], 'y', linewidth=2, label='Azimut 1')
+    ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
 
-        # Rectas de altura (rojas punteadas)
-        ax.plot([dx1 - dy1, dx1 + dy1], [dy1 + dx1, dy1 - dx1], 'r--', linewidth=2)
-        ax.plot([dx2 - dy2, dx2 + dy2], [dy2 + dx2, dy2 - dx2], 'r--', linewidth=2)
+    # Rectas de altura (rojas punteadas)
+    ax.plot([dx1 - dy1, dx1 + dy1], [dy1 + dx1, dy1 - dx1], 'r--', linewidth=2)
+    ax.plot([dx2 - dy2, dx2 + dy2], [dy2 + dx2, dy2 - dx2], 'r--', linewidth=2)
 
-        # Punto de intersección
-        ax.plot(x_intersec, y_intersec, 'mo', markersize=10)
-        ax.text(x_intersec + 0.5, y_intersec + 0.5,
-                f"Lat: {lat_intersec:.6f}\nLon: {lon_intersec:.6f}", fontsize=12)
+    ax.plot(x_intersec, y_intersec, 'mo', markersize=10)
+    ax.text(x_intersec + 0.5, y_intersec + 0.5,
+            f"Lat: {lat_intersec:.6f}\nLon: {lon_intersec:.6f}", fontsize=12)
 
-        ax.set_xlim(-10, 10)
-        ax.set_ylim(-10, 10)
-        ax.set_aspect('equal', adjustable='box')
-        ax.set_xlabel("Longitud")
-        ax.set_ylabel("Latitud")
-        ax.set_title("Rectas de Altura")
-        ax.grid(True)
-        ax.legend()
+    ax.set_xlim(-10, 10)
+    ax.set_ylim(-10, 10)
+    ax.set_aspect('equal', adjustable='box')
+    ax.set_xlabel("Longitud")
+    ax.set_ylabel("Latitud")
+    ax.set_title("Rectas de Altura")
+    ax.grid(True)
+    ax.legend()
 
-        st.pyplot(fig)
+    st.pyplot(fig)
+
+    # ===================== GRÁFICO DE PARTES IGUALES Y PARTES AUMENTADAS =====================
+    fig2, ax2 = plt.subplots(figsize=(10, 4))
+
+    # Línea horizontal: Partes Iguales
+    x_iguales = np.linspace(0, 8, 9)  # De 0 a 8 en partes iguales
+    y_iguales = np.zeros_like(x_iguales)
+
+    # Línea inclinada: Partes Aumentadas (ángulo igual a la latitud absoluta)
+    angulo_latitud_rad = np.radians(abs(latitud))
+    y_aumentadas = x_iguales * np.tan(angulo_latitud_rad)
+
+    # Dibujar líneas
+    ax2.plot(x_iguales, y_iguales, 'k-', linewidth=2, label='Partes Iguales')
+    ax2.plot(x_iguales, y_aumentadas, 'r-', linewidth=2, label='Partes Aumentadas')
+
+    # Líneas verticales que unen ambos ejes (como "<")
+    for xi, yi in zip(x_iguales, y_aumentadas):
+        ax2.plot([xi, xi], [0, yi], 'gray', linestyle='--', linewidth=1)
+
+    # Formato del gráfico
+    ax2.set_title("Ángulo = latitud")
+    ax2.set_xlabel("Partes Iguales")
+    ax2.set_ylabel("Partes Aumentadas")
+    ax2.set_xlim(0, 8)
+    ax2.set_ylim(0, max(y_aumentadas) * 1.1)
+    ax2.grid(True)
+    ax2.legend()
+
+    st.pyplot(fig2)
