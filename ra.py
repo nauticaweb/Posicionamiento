@@ -97,34 +97,52 @@ if st.button("Calcular"):
         st.write(f"Longitud de la intersección: {lon_g}° {lon_m:.2f}'")
 
         # ===================== GRÁFICO =====================
-        fig, ax = plt.subplots(figsize=(10, 8))
-        ax.axhline(0, color='black', linewidth=1)
-        ax.axvline(0, color='black', linewidth=1)
+        
+fig, ax = plt.subplots(figsize=(10, 8))
+ax.axhline(0, color='black', linewidth=1)
+ax.axvline(0, color='black', linewidth=1)
 
-        # Dibujar vectores
-        ax.plot([0, dx0], [0, dy0], 'b', linewidth=2, label='Desplazamiento')
-        ax.plot([dx0, x1], [dy0, y1], 'y', linewidth=2, label='Azimut 1')
-        ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
+# Vectores
+ax.plot([0, dx0], [0, dy0], 'b', linewidth=2, label='Desplazamiento')
+ax.plot([dx0, dx1], [dy0, dy1], 'y', linewidth=2, label='Azimut 1')
+ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
 
-        # Rectas de altura (perpendiculares a los azimuts)
-        dibujar_perpendicular(ax, x1, y1, azimut1)
-        dibujar_perpendicular(ax, x2, y2, azimut2)
+# Recta de altura 1: perpendicular a Azimut 1, pasa por (dx1, dy1)
+pendiente_az1 = np.tan(np.radians(azimut1))
+pendiente_perp1 = -1 / pendiente_az1 if pendiente_az1 != 0 else np.inf
+if np.isinf(pendiente_perp1):
+    x1 = [dx1, dx1]
+    y1 = [dy1 - 10, dy1 + 10]
+else:
+    x1 = np.linspace(dx1 - 10, dx1 + 10, 100)
+    y1 = pendiente_perp1 * (x1 - dx1) + dy1
+ax.plot(x1, y1, 'r--', linewidth=2, label='Recta de altura 1')
 
-        # Punto de intersección
-        ax.plot(x_intersec, y_intersec, 'mo', markersize=10)
-        ax.text(x_intersec + 0.5, y_intersec + 0.5,
-                f"Lat: {lat_intersec:.6f}\nLon: {lon_intersec:.6f}", fontsize=12)
+# Recta de altura 2: perpendicular a Azimut 2, pasa por (dx2, dy2)
+pendiente_az2 = np.tan(np.radians(azimut2))
+pendiente_perp2 = -1 / pendiente_az2 if pendiente_az2 != 0 else np.inf
+if np.isinf(pendiente_perp2):
+    x2 = [dx2, dx2]
+    y2 = [dy2 - 10, dy2 + 10]
+else:
+    x2 = np.linspace(dx2 - 10, dx2 + 10, 100)
+    y2 = pendiente_perp2 * (x2 - dx2) + dy2
+ax.plot(x2, y2, 'r--', linewidth=2, label='Recta de altura 2')
 
-        ax.set_xlim(-10, 10)
-        ax.set_ylim(-10, 10)
-        ax.set_aspect('equal', adjustable='box')
-        ax.set_xlabel("Longitud")
-        ax.set_ylabel("Latitud")
-        ax.set_title("Rectas de Altura")
-        ax.grid(True)
-        ax.legend()
+# Punto de intersección
+ax.plot(x_intersec, y_intersec, 'mo', markersize=10)
+ax.text(x_intersec + 0.5, y_intersec + 0.5,
+        f"Lat: {lat_intersec:.6f}\nLon: {lon_intersec:.6f}", fontsize=12)
 
-        st.pyplot(fig)
+ax.set_xlim(-10, 10)
+ax.set_ylim(-10, 10)
+ax.set_aspect('equal', adjustable='box')
+ax.set_xlabel("Longitud")
+ax.set_ylabel("Latitud")
+ax.set_title("Rectas de Altura")
+ax.grid(True)
+ax.legend()
+st.pyplot(fig)
 
         # ===================== GRÁFICO DE PARTES IGUALES =====================
         fig2, ax2 = plt.subplots(figsize=(10, 4))
