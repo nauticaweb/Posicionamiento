@@ -55,23 +55,29 @@ if st.button("Calcular"):
     dx0 = dh0 * np.sin(np.radians(rumbo))
     dy0 = dh0 * np.cos(np.radians(rumbo))
 
-    # Vectores de observación y desplazamiento
     dx1 = dh1 * np.sin(np.radians(azimut1)) + dx0
     dy1 = dh1 * np.cos(np.radians(azimut1)) + dy0
 
     dx2 = dh2 * np.sin(np.radians(azimut2))
     dy2 = dh2 * np.cos(np.radians(azimut2))
 
-    # Cálculo de la intersección
+    # ===================== CÁLCULO DE LA INTERSECCIÓN =====================
+
+    # Cálculo de las rectas de altura
     if dx1 != 0 and dx2 != 0:
+        # Cálculo de la pendiente de cada vector
         mz1 = dy1 / dx1
         mz2 = dy2 / dx2
 
+        # Cálculo de las pendientes de las rectas perpendiculares
         m1 = -1 / mz1
         m2 = -1 / mz2
 
+        # Ecuaciones de las rectas
         b1 = dy1 - m1 * dx1
         b2 = dy2 - m2 * dx2
+
+        # Cálculo de la intersección
         x_intersec = (b2 - b1) / (m1 - m2)
         y_intersec = m1 * x_intersec + b1
     else:
@@ -82,13 +88,17 @@ if st.button("Calcular"):
     lat_intersec = latitud + (y_i / 60)
     lon_intersec = longitud - (x_intersec / 60)
 
+    # Redondear los resultados para evitar más variaciones
+    lat_intersec = round(lat_intersec, 6)
+    lon_intersec = round(lon_intersec, 6)
+
     # Conversión de la latitud y longitud a grados y minutos
     lat_g, lat_m = decimal_a_grados_minutos(lat_intersec)
     lon_g, lon_m = decimal_a_grados_minutos(lon_intersec)
 
     # Mostrar resultados
-    st.write(f"Latitud de la intersección: {lat_g}° {lat_m:.2f}'")
-    st.write(f"Longitud de la intersección: {lon_g}° {lon_m:.2f}'")
+    st.write(f"Latitud de la intersección: {lat_g}° {lat_m:.6f}'")
+    st.write(f"Longitud de la intersección: {lon_g}° {lon_m:.6f}'")
 
     # ===================== GRÁFICO =====================
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -119,7 +129,7 @@ if st.button("Calcular"):
 
     st.pyplot(fig)
 
-    # ===================== GRÁFICO DE PARTES IGUALES Y PARTES AUMENTADAS =====================
+    # ===================== SEGUNDO GRÁFICO =====================
     fig2, ax2 = plt.subplots(figsize=(10, 4))
 
     # Línea horizontal: Partes Iguales
@@ -139,7 +149,7 @@ if st.button("Calcular"):
         ax2.plot([xi, xi], [0, yi], 'gray', linestyle='--', linewidth=1)
 
     # Formato del gráfico
-    ax2.set_title("Ángulo = latitud")
+    ax2.set_title("Ángulo = Latitud")
     ax2.set_xlabel("Partes Iguales")
     ax2.set_ylabel("Partes Aumentadas")
     ax2.set_xlim(0, 8)
