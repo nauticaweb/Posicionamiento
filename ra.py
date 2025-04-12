@@ -40,10 +40,14 @@ if st.button("Calcular"):
     latitud = gms_a_decimal(lat_grados, lat_minutos, lat_segundos)
     longitud = gms_a_decimal(lon_grados, lon_minutos, lon_segundos)
 
+    # Asegurarse de que los cálculos sean correctos en la latitud y longitud
+    lat = latitud
+    lon = longitud
+
     # Ajuste de las diferencias de altura por latitud (sin errores de redondeo)
-    dh1 = abs(dh1t / np.cos(np.radians(latitud)))
-    dh2 = abs(dh2t / np.cos(np.radians(latitud)))
-    dh0 = abs(distancia / np.cos(np.radians(latitud)))
+    dh1 = abs(dh1t / np.cos(np.radians(lat)))
+    dh2 = abs(dh2t / np.cos(np.radians(lat)))
+    dh0 = abs(distancia / np.cos(np.radians(lat)))
 
     # Ajuste de los azimuts en función de las diferencias de altura
     if dh1t < 0:
@@ -51,7 +55,7 @@ if st.button("Calcular"):
     if dh2t < 0:
         azimut2 += 180
 
-    # Componentes del desplazamiento
+    # Desplazamiento
     dx0 = dh0 * np.sin(np.radians(rumbo))
     dy0 = dh0 * np.cos(np.radians(rumbo))
 
@@ -76,10 +80,10 @@ if st.button("Calcular"):
     else:
         st.error("Error en el cálculo de la intersección: división por cero.")
 
-    # Conversión de la intersección a coordenadas geográficas (sin errores de redondeo)
-    y_i = y_intersec * np.cos(np.radians(latitud))
-    lat_intersec = latitud + (y_i / 60)
-    lon_intersec = longitud - (x_intersec / 60)
+    # Conversión de la intersección a coordenadas geográficas
+    y_i = y_intersec * np.cos(np.radians(lat))
+    lat_intersec = lat + (y_i / 60)
+    lon_intersec = lon - (x_intersec / 60)
 
     # Conversión de la latitud y longitud a grados y minutos
     lat_g, lat_m = decimal_a_grados_minutos(lat_intersec)
