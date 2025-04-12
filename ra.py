@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
-# ===================== FUNCIONES AUXILIARES =====================
+# ===================== FUNCIONES AUXILIARES ====================
 def gms_a_decimal(grados, minutos, segundos):
     if grados < 0:
         grados_dec = grados - (minutos / 60) - (segundos / 3600)
