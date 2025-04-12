@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 # ===================== FUNCIONES AUXILIARES =====================
 def gms_a_decimal(grados, minutos, segundos):
+    """Convierte coordenadas en grados, minutos y segundos a decimal"""
     if grados < 0:
         grados_dec = grados - (minutos / 60) - (segundos / 3600)
     else:
@@ -11,27 +12,33 @@ def gms_a_decimal(grados, minutos, segundos):
     return grados_dec
 
 def decimal_a_grados_minutos(decimal):
+    """Convierte coordenadas decimales a grados y minutos"""
     grados = int(decimal)
     minutos = abs((decimal - grados) * 60)
     return grados, minutos
 
-def calcular_interseccion(x1, y1, m1, x2, y2, m2):
-    """
-    Calcula la intersección de dos rectas dadas por sus pendientes (m1, m2) y un punto de cada recta.
-    """
+def calcular_perpendicular(x1, y1, azimut):
+    """Calcula la ecuación de la recta perpendicular al vector de azimut"""
+    # Ángulo perpendicular al azimut
+    perpendiculo_azimut = azimut + 90 if azimut <= 90 else azimut - 90
+    
+    # Calculamos la pendiente de la perpendicular
+    pendiente = np.tan(np.radians(perpendiculo_azimut))
+    
+    # Ecuación de la recta: y = mx + b, donde m es la pendiente
+    b = y1 - pendiente * x1  # Calculamos el término independiente
+    return pendiente, b
+
+def calcular_interseccion(m1, b1, m2, b2):
+    """Calcula la intersección de dos rectas dadas por sus pendientes y términos independientes"""
+    # Si las pendientes son iguales, las rectas son paralelas
     if m1 == m2:
-        return None  # Las rectas son paralelas
-
-    # Ecuación de las rectas: y = m * x + b
-    # Para cada recta, se tiene que calcular 'b' a partir del punto y la pendiente.
-    b1 = y1 - m1 * x1
-    b2 = y2 - m2 * x2
-
-    # Resolver para encontrar la intersección
-    x_intersec = (b2 - b1) / (m1 - m2)
-    y_intersec = m1 * x_intersec + b1
-
-    return x_intersec, y_intersec
+        return None
+    
+    # Resolvemos el sistema de ecuaciones
+    x_interseccion = (b2 - b1) / (m1 - m2)
+    y_interseccion = m1 * x_interseccion + b1
+    return x_interseccion, y_interseccion
 
 # ===================== INTERFAZ STREAMLIT =====================
 st.title("Cálculo de posición por Rectas de Altura")
@@ -76,13 +83,13 @@ if st.button("Calcular"):
     dx2 = dh2 * np.sin(np.radians(azimut2))
     dy2 = dh2 * np.cos(np.radians(azimut2))
 
-    # ===================== CÁLCULO DE INTERSECCIÓN =====================
-    # Calculamos las pendientes de las rectas (perpendiculares a los azimuts)
-    m1 = -1 / np.tan(np.radians(azimut1))
-    m2 = -1 / np.tan(np.radians(azimut2))
+    # ===================== CÁLCULO DE RECTAS PERPENDICULARES =====================
+    # Calculamos la pendiente y el término independiente de las rectas perpendiculares
+    m1, b1 = calcular_perpendicular(dx1, dy1, azimut1)
+    m2, b2 = calcular_perpendicular(dx2, dy2, azimut2)
 
-    # Usamos la función para calcular la intersección de las rectas
-    interseccion = calcular_interseccion(dx1, dy1, m1, dx2, dy2, m2)
+    # ===================== CÁLCULO DE INTERSECCIÓN =====================
+    interseccion = calcular_interseccion(m1, b1, m2, b2)
 
     if interseccion is None:
         st.error("Las rectas son paralelas, no tienen intersección.")
