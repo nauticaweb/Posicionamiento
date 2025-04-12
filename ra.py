@@ -15,12 +15,6 @@ def decimal_a_grados_minutos(decimal):
     minutos = abs((decimal - grados) * 60)
     return grados, minutos
 
-def dibujar_perpendicular(ax, x, y, azimut, largo=10):
-    angulo_rad = np.radians(azimut + 90)
-    dx = largo * np.cos(angulo_rad)
-    dy = largo * np.sin(angulo_rad)
-    ax.plot([x - dx, x + dx], [y - dy, y + dy], 'r--', linewidth=2)
-
 # ===================== INTERFAZ STREAMLIT =====================
 st.title("Cálculo de posición por Rectas de Altura")
 
@@ -51,118 +45,124 @@ if st.button("Calcular"):
     dh2 = abs(dh2t / np.cos(np.radians(latitud)))
     dh0 = abs(distancia / np.cos(np.radians(latitud)))
 
-    # Ajustar azimuts si las diferencias son negativas
+    # Ajustar azimuts
     if dh1t < 0:
         azimut1 += 180
     if dh2t < 0:
         azimut2 += 180
 
-    # Vector de desplazamiento
+    # Componentes del desplazamiento
     dx0 = dh0 * np.sin(np.radians(rumbo))
     dy0 = dh0 * np.cos(np.radians(rumbo))
-    x0, y0 = dx0, dy0
 
-    # Vector azimut 1 (desde final del desplazamiento)
-    dx1 = dh1 * np.sin(np.radians(azimut1))
-    dy1 = dh1 * np.cos(np.radians(azimut1))
-    x1 = x0 + dx1
-    y1 = y0 + dy1
+    dx1 = dh1 * np.sin(np.radians(azimut1)) + dx0
+    dy1 = dh1 * np.cos(np.radians(azimut1)) + dy0
 
-    # Vector azimut 2 (desde origen)
     dx2 = dh2 * np.sin(np.radians(azimut2))
     dy2 = dh2 * np.cos(np.radians(azimut2))
-    x2 = dx2
-    y2 = dy2
 
-    # Pendientes de las rectas perpendiculares (rectas de altura)
-    m1 = np.tan(np.radians(azimut1 + 90))
-    m2 = np.tan(np.radians(azimut2 + 90))
+    # Cálculo de la intersección
+    if dx1 != 0 and dx2 != 0:
+        mz1 = dy1 / dx1
+        mz2 = dy2 / dx2
 
-    if np.isclose(m1, m2):
-        st.error("Las rectas de altura son paralelas, no hay intersección.")
+        m1 = -1 / mz1
+        m2 = -1 / mz2
+
+        b1 = dy1 - m1 * dx1
+        b2 = dy2 - m2 * dx2
+        x_intersec = (b2 - b1) / (m1 - m2)
+        y_intersec = m1 * x_intersec + b1
     else:
-        x_intersec = (m1 * x1 - m2 * x2 + y2 - y1) / (m1 - m2)
-        y_intersec = m1 * (x_intersec - x1) + y1
+        st.error("Error en el cálculo de la intersección: división por cero.")
 
-        # Conversión a coordenadas geográficas
-        y_i = y_intersec * np.cos(np.radians(latitud))
-        lat_intersec = latitud + (y_i / 60)
-        lon_intersec = longitud - (x_intersec / 60)
+    # Conversión de la intersección a coordenadas geográficas
+    y_i = y_intersec * np.cos(np.radians(latitud))
+    lat_intersec = latitud + (y_i / 60)
+    lon_intersec = longitud - (x_intersec / 60)
 
-        # Conversión a grados y minutos
-        lat_g, lat_m = decimal_a_grados_minutos(lat_intersec)
-        lon_g, lon_m = decimal_a_grados_minutos(lon_intersec)
+    # Conversión de la latitud y longitud a grados y minutos
+    lat_g, lat_m = decimal_a_grados_minutos(lat_intersec)
+    lon_g, lon_m = decimal_a_grados_minutos(lon_intersec)
 
-        st.write(f"Latitud de la intersección: {lat_g}° {lat_m:.2f}'")
-        st.write(f"Longitud de la intersección: {lon_g}° {lon_m:.2f}'")
+    # Mostrar resultados
+    st.write(f"Latitud de la intersección: {lat_g}° {lat_m:.2f}'")
+    st.write(f"Longitud de la intersección: {lon_g}° {lon_m:.2f}'")
 
-    # ===================== GRÁFICO CORREGIDO =====================
-fig, ax = plt.subplots(figsize=(10, 8))
-ax.axhline(0, color='black', linewidth=1)
-ax.axvline(0, color='black', linewidth=1)
+    # ===================== GRÁFICO =====================
+    fig, ax = plt.subplots(figsize=(10, 8))
+    ax.axhline(0, color='black', linewidth=1)
+    ax.axvline(0, color='black', linewidth=1)
 
-# Vectores
-ax.plot([0, dx0], [0, dy0], 'b', linewidth=2, label='Desplazamiento')
-ax.plot([dx0, dx1], [dy0, dy1], 'y', linewidth=2, label='Azimut 1')
-ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
+    # Vectores
+    ax.plot([0, dx0], [0, dy0], 'b', linewidth=2, label='Desplazamiento')
+    ax.plot([dx0, dx1], [dy0, dy1], 'y', linewidth=2, label='Azimut 1')
+    ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
 
-# Recta de altura 1: perpendicular a Azimut 1, pasa por (dx1, dy1)
-pendiente_az1 = np.tan(np.radians(azimut1))
-pendiente_perp1 = -1 / pendiente_az1 if pendiente_az1 != 0 else np.inf
-if np.isinf(pendiente_perp1):
-    x1 = [dx1, dx1]
-    y1 = [dy1 - 10, dy1 + 10]
-else:
-    x1 = np.linspace(dx1 - 10, dx1 + 10, 100)
-    y1 = pendiente_perp1 * (x1 - dx1) + dy1
-ax.plot(x1, y1, 'r--', linewidth=2, label='Recta de altura 1')
+    # Recta de altura 1: perpendicular a Azimut 1, pasa por (dx1, dy1)
+    pendiente_az1 = np.tan(np.radians(azimut1))
+    pendiente_perp1 = -1 / pendiente_az1 if pendiente_az1 != 0 else np.inf
+    if np.isinf(pendiente_perp1):
+        x1 = [dx1, dx1]
+        y1 = [dy1 - 10, dy1 + 10]
+    else:
+        x1 = np.linspace(dx1 - 10, dx1 + 10, 100)
+        y1 = pendiente_perp1 * (x1 - dx1) + dy1
+    ax.plot(x1, y1, 'r--', linewidth=2, label='Recta de altura 1')
 
-# Recta de altura 2: perpendicular a Azimut 2, pasa por (dx2, dy2)
-pendiente_az2 = np.tan(np.radians(azimut2))
-pendiente_perp2 = -1 / pendiente_az2 if pendiente_az2 != 0 else np.inf
-if np.isinf(pendiente_perp2):
-    x2 = [dx2, dx2]
-    y2 = [dy2 - 10, dy2 + 10]
-else:
-    x2 = np.linspace(dx2 - 10, dx2 + 10, 100)
-    y2 = pendiente_perp2 * (x2 - dx2) + dy2
-ax.plot(x2, y2, 'r--', linewidth=2, label='Recta de altura 2')
+    # Recta de altura 2: perpendicular a Azimut 2, pasa por (dx2, dy2)
+    pendiente_az2 = np.tan(np.radians(azimut2))
+    pendiente_perp2 = -1 / pendiente_az2 if pendiente_az2 != 0 else np.inf
+    if np.isinf(pendiente_perp2):
+        x2 = [dx2, dx2]
+        y2 = [dy2 - 10, dy2 + 10]
+    else:
+        x2 = np.linspace(dx2 - 10, dx2 + 10, 100)
+        y2 = pendiente_perp2 * (x2 - dx2) + dy2
+    ax.plot(x2, y2, 'r--', linewidth=2, label='Recta de altura 2')
 
-# Punto de intersección
-ax.plot(x_intersec, y_intersec, 'mo', markersize=10)
-ax.text(x_intersec + 0.5, y_intersec + 0.5,
-        f"Lat: {lat_intersec:.6f}\nLon: {lon_intersec:.6f}", fontsize=12)
+    # Punto de intersección
+    ax.plot(x_intersec, y_intersec, 'mo', markersize=10)
+    ax.text(x_intersec + 0.5, y_intersec + 0.5,
+            f"Lat: {lat_intersec:.6f}\nLon: {lon_intersec:.6f}", fontsize=12)
 
-ax.set_xlim(-10, 10)
-ax.set_ylim(-10, 10)
-ax.set_aspect('equal', adjustable='box')
-ax.set_xlabel("Longitud")
-ax.set_ylabel("Latitud")
-ax.set_title("Rectas de Altura")
-ax.grid(True)
-ax.legend()
+    ax.set_xlim(-10, 10)
+    ax.set_ylim(-10, 10)
+    ax.set_aspect('equal', adjustable='box')
+    ax.set_xlabel("Longitud")
+    ax.set_ylabel("Latitud")
+    ax.set_title("Rectas de Altura")
+    ax.grid(True)
+    ax.legend()
 
-st.pyplot(fig)
+    st.pyplot(fig)
 
-        # ===================== GRÁFICO DE PARTES IGUALES =====================
-        fig2, ax2 = plt.subplots(figsize=(10, 4))
-        x_iguales = np.linspace(0, 8, 9)
-        y_iguales = np.zeros_like(x_iguales)
-        angulo_latitud_rad = np.radians(abs(latitud))
-        y_aumentadas = x_iguales * np.tan(angulo_latitud_rad)
+    # ===================== GRÁFICO DE PARTES IGUALES Y PARTES AUMENTADAS =====================
+    fig2, ax2 = plt.subplots(figsize=(10, 4))
 
-        ax2.plot(x_iguales, y_iguales, 'k-', linewidth=2, label='Partes Iguales')
-        ax2.plot(x_iguales, y_aumentadas, 'r-', linewidth=2, label='Partes Aumentadas')
+    # Línea horizontal: Partes Iguales
+    x_iguales = np.linspace(0, 8, 9)  # De 0 a 8 en partes iguales
+    y_iguales = np.zeros_like(x_iguales)
 
-        for xi, yi in zip(x_iguales, y_aumentadas):
-            ax2.plot([xi, xi], [0, yi], 'gray', linestyle='--', linewidth=1)
+    # Línea inclinada: Partes Aumentadas (ángulo igual a la latitud absoluta)
+    angulo_latitud_rad = np.radians(abs(latitud))
+    y_aumentadas = x_iguales * np.tan(angulo_latitud_rad)
 
-        ax2.set_title("Angulo = latitud")
-        ax2.set_xlabel("Partes Iguales")
-        ax2.set_ylabel("Partes Aumentadas")
-        ax2.set_xlim(0, 8)
-        ax2.set_ylim(0, max(y_aumentadas) * 1.1)
-        ax2.grid(True)
-        ax2.legend()
+    # Dibujar líneas
+    ax2.plot(x_iguales, y_iguales, 'k-', linewidth=2, label='Partes Iguales')
+    ax2.plot(x_iguales, y_aumentadas, 'r-', linewidth=2, label='Partes Aumentadas')
 
-        st.pyplot(fig2)
+    # Líneas verticales que unen ambos ejes (como "<")
+    for xi, yi in zip(x_iguales, y_aumentadas):
+        ax2.plot([xi, xi], [0, yi], 'gray', linestyle='--', linewidth=1)
+
+    # Formato del gráfico
+    ax2.set_title("Angulo = latitud")
+    ax2.set_xlabel("Partes Iguales")
+    ax2.set_ylabel("Partes Aumentadas")
+    ax2.set_xlim(0, 8)
+    ax2.set_ylim(0, max(y_aumentadas) * 1.1)
+    ax2.grid(True)
+    ax2.legend()
+
+    st.pyplot(fig2)
