@@ -15,6 +15,24 @@ def decimal_a_grados_minutos(decimal):
     minutos = abs((decimal - grados) * 60)
     return grados, minutos
 
+def calcular_interseccion(x1, y1, m1, x2, y2, m2):
+    """
+    Calcula la intersección de dos rectas dadas por sus pendientes (m1, m2) y un punto de cada recta.
+    """
+    if m1 == m2:
+        return None  # Las rectas son paralelas
+
+    # Ecuación de las rectas: y = m * x + b
+    # Para cada recta, se tiene que calcular 'b' a partir del punto y la pendiente.
+    b1 = y1 - m1 * x1
+    b2 = y2 - m2 * x2
+
+    # Resolver para encontrar la intersección
+    x_intersec = (b2 - b1) / (m1 - m2)
+    y_intersec = m1 * x_intersec + b1
+
+    return x_intersec, y_intersec
+
 # ===================== INTERFAZ STREAMLIT =====================
 st.title("Cálculo de posición por Rectas de Altura")
 
@@ -41,8 +59,8 @@ if st.button("Calcular"):
     longitud = gms_a_decimal(lon_grados, lon_minutos, lon_segundos)
 
     # Ajustar diferencias de altura
-    dh1 = dh1t  # No ajustar por latitud aún
-    dh2 = dh2t  # No ajustar por latitud aún
+    dh1 = dh1t
+    dh2 = dh2t
 
     # Desplazamiento
     dh0 = distancia * 60  # Convertir millas a minutos de latitud
@@ -58,23 +76,19 @@ if st.button("Calcular"):
     dx2 = dh2 * np.sin(np.radians(azimut2))
     dy2 = dh2 * np.cos(np.radians(azimut2))
 
-    # ===================== INTERSECCIÓN DE RECTAS =====================
-    # Si los ángulos no son paralelos, calculamos la intersección de las rectas
-    if dx1 != dx2:
-        # Pendientes de las rectas de altura
-        m1 = -1 / np.tan(np.radians(azimut1))
-        m2 = -1 / np.tan(np.radians(azimut2))
+    # ===================== CÁLCULO DE INTERSECCIÓN =====================
+    # Calculamos las pendientes de las rectas (perpendiculares a los azimuts)
+    m1 = -1 / np.tan(np.radians(azimut1))
+    m2 = -1 / np.tan(np.radians(azimut2))
 
-        # Ecuaciones de las rectas: y = mx + b
-        b1 = dy1 - m1 * dx1
-        b2 = dy2 - m2 * dx2
+    # Usamos la función para calcular la intersección de las rectas
+    interseccion = calcular_interseccion(dx1, dy1, m1, dx2, dy2, m2)
 
-        # Encontrar la intersección
-        x_intersec = (b2 - b1) / (m1 - m2)
-        y_intersec = m1 * x_intersec + b1
-    else:
+    if interseccion is None:
         st.error("Las rectas son paralelas, no tienen intersección.")
         x_intersec, y_intersec = None, None
+    else:
+        x_intersec, y_intersec = interseccion
 
     if x_intersec is not None and y_intersec is not None:
         # Convertir la intersección a coordenadas geográficas
@@ -118,33 +132,3 @@ if st.button("Calcular"):
         ax.legend()
 
         st.pyplot(fig)
-
-        # ===================== SEGUNDO GRÁFICO =====================
-        fig2, ax2 = plt.subplots(figsize=(10, 4))
-
-        # Línea horizontal: Partes Iguales
-        x_iguales = np.linspace(0, 8, 9)  # De 0 a 8 en partes iguales
-        y_iguales = np.zeros_like(x_iguales)
-
-        # Línea inclinada: Partes Aumentadas (ángulo igual a la latitud absoluta)
-        angulo_latitud_rad = np.radians(abs(latitud))
-        y_aumentadas = x_iguales * np.tan(angulo_latitud_rad)
-
-        # Dibujar líneas
-        ax2.plot(x_iguales, y_iguales, 'k-', linewidth=2, label='Partes Iguales')
-        ax2.plot(x_iguales, y_aumentadas, 'r-', linewidth=2, label='Partes Aumentadas')
-
-        # Líneas verticales que unen ambos ejes (como "<")
-        for xi, yi in zip(x_iguales, y_aumentadas):
-            ax2.plot([xi, xi], [0, yi], 'gray', linestyle='--', linewidth=1)
-
-        # Formato del gráfico
-        ax2.set_title("Ángulo = latitud")
-        ax2.set_xlabel("Partes Iguales")
-        ax2.set_ylabel("Partes Aumentadas")
-        ax2.set_xlim(0, 8)
-        ax2.set_ylim(0, max(y_aumentadas) * 1.1)
-        ax2.grid(True)
-        ax2.legend()
-
-        st.pyplot(fig2)
