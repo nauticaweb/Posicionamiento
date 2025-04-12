@@ -96,8 +96,7 @@ if st.button("Calcular"):
         st.write(f"Latitud de la intersección: {lat_g}° {lat_m:.2f}'")
         st.write(f"Longitud de la intersección: {lon_g}° {lon_m:.2f}'")
 
-        # ===================== GRÁFICO =====================
-        
+    # ===================== GRÁFICO CORREGIDO =====================
 fig, ax = plt.subplots(figsize=(10, 8))
 ax.axhline(0, color='black', linewidth=1)
 ax.axvline(0, color='black', linewidth=1)
@@ -142,6 +141,7 @@ ax.set_ylabel("Latitud")
 ax.set_title("Rectas de Altura")
 ax.grid(True)
 ax.legend()
+
 st.pyplot(fig)
 
         # ===================== GRÁFICO DE PARTES IGUALES =====================
