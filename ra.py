@@ -1,100 +1,132 @@
 import streamlit as st
 import numpy as np
+import matplotlib.pyplot as plt
 
-# ================== FUNCIONES ==================
-def gms_a_decimal(grados, minutos, direccion):
-    """Convierte coordenadas en grados, minutos y dirección a decimal"""
-    decimal = grados + minutos / 60
-    if direccion in ['S', 'O']:
-        decimal *= -1
-    return decimal
+# ===================== FUNCIONES =====================
+def gms_a_decimal(grados, minutos, segundos):
+    if grados < 0:
+        return grados - (minutos / 60) - (segundos / 3600)
+    else:
+        return grados + (minutos / 60) + (segundos / 3600)
 
-def decimal_a_gm(decimal, is_lat=False):
-    """Convierte coordenadas decimales a grados y minutos con decimales"""
-    direccion = 'N' if decimal >= 0 else 'S' if is_lat else 'E' if decimal >= 0 else 'O'
-    decimal = abs(decimal)
-    grados = int(decimal)
-    minutos = (decimal - grados) * 60
-    return f"{grados}° {minutos:.2f}' {direccion}"
+def decimal_a_grados_minutos(decimales):
+    grados = int(decimales)
+    minutos = (abs(decimales) - abs(grados)) * 60
+    return grados, minutos
 
-# ================== STREAMLIT INTERFAZ ==================
-st.title("Cálculo de Punto de Corte")
+# ==================== INTERFAZ =====================
+st.title("Cálculo de posición por Rectas de Altura")
 
-# Datos de entrada: latitud y longitud
-st.sidebar.header("Datos de Entrada")
-lat_g = st.sidebar.number_input("Latitud (Grados)", min_value=-90.0, max_value=90.0, value=41.0)
-lat_m = st.sidebar.number_input("Latitud (Minutos)", min_value=0.0, max_value=60.0, value=37.1)
-lon_g = st.sidebar.number_input("Longitud (Grados)", min_value=-180.0, max_value=180.0, value=50.0)
-lon_m = st.sidebar.number_input("Longitud (Minutos)", min_value=0.0, max_value=60.0, value=12.6)
+st.header("1. Punto de estima (coordenadas)")
+col1, col2 = st.columns(2)
+with col1:
+    lat_grados = st.number_input("Latitud grados", step=1, format="%d", value=0)
+    lat_minutos = st.number_input("Latitud minutos", step=1.0, value=0.0)
+    lat_segundos = st.number_input("Latitud segundos", step=0.1, value=0.0)
+with col2:
+    lon_grados = st.number_input("Longitud grados", step=1, format="%d", value=0)
+    lon_minutos = st.number_input("Longitud minutos", step=1.0, value=0.0)
+    lon_segundos = st.number_input("Longitud segundos", step=0.1, value=0.0)
 
-# Azimut y diferencia de altura
-azimut1 = st.sidebar.number_input("Azimut 1 (°)", min_value=0.0, max_value=360.0, value=218.3)
-dh1 = st.sidebar.number_input("Diferencia de altura 1", min_value=-100.0, max_value=100.0, value=5.0)
+st.header("2. Observaciones")
+azimut1 = st.number_input("Azimut 1 (°)", step=1.0, value=0.0)
+dh1t = st.number_input("Diferencia de alturas 1", step=0.1, value=0.0)
 
-azimut2 = st.sidebar.number_input("Azimut 2 (°)", min_value=0.0, max_value=360.0, value=168.0)
-dh2 = st.sidebar.number_input("Diferencia de altura 2", min_value=-100.0, max_value=100.0, value=-4.5)
+azimut2 = st.number_input("Azimut 2 (°)", step=1.0, value=0.0)
+dh2t = st.number_input("Diferencia de alturas 2", step=0.1, value=0.0)
 
-# Rumbo del desplazamiento y distancia
-rumbo = st.sidebar.number_input("Rumbo del desplazamiento (°)", min_value=0.0, max_value=360.0, value=327.0)
-dh0 = st.sidebar.number_input("Distancia del desplazamiento (millas náuticas)", min_value=0.0, max_value=100.0, value=2.0)
+st.header("3. Desplazamiento")
+rumbo = st.number_input("Rumbo de desplazamiento (°)", step=1.0, value=0.0)
+distancia = st.number_input("Distancia navegada", step=0.1, value=0.0)
 
-# ================== CÁLCULO ==================
-# Punto de estima en decimal
-lat0 = gms_a_decimal(lat_g, lat_m, 'N')
-lon0 = gms_a_decimal(lon_g, lon_m, 'O')
+# ===================== BOTÓN =====================
+if st.button("Calcular"):
+    # Convertir coordenadas a decimales
+    latitud = gms_a_decimal(lat_grados, lat_minutos, lat_segundos)
+    longitud = gms_a_decimal(lon_grados, lon_minutos, lon_segundos)
 
-# Desplazamiento (vector 0)
-dx0 = dh0 * np.sin(np.radians(rumbo))
-dy0 = dh0 * np.cos(np.radians(rumbo))
+    # Vector desplazamiento (inicio en 0,0)
+    az3 = rumbo + 180 if distancia < 0 else rumbo
+    dh3 = abs(distancia / np.cos(np.radians(latitud)))
+    dx3 = dh3 * np.sin(np.radians(az3))
+    dy3 = dh3 * np.cos(np.radians(az3))
 
-# Vector 1 (desde fin de vector 0)
-dx1 = dh1 * np.sin(np.radians(azimut1))
-dy1 = dh1 * np.cos(np.radians(azimut1))
-x1 = dx0 + dx1
-y1 = dy0 + dy1
+    # Nuevo punto de inicio para el azimut 1, después del desplazamiento
+    x1_offset = dx3
+    y1_offset = dy3
 
-# Vector 2 (desde 0,0)
-dx2 = dh2 * np.sin(np.radians(azimut2))
-dy2 = dh2 * np.cos(np.radians(azimut2))
-x2 = dx2
-y2 = dy2
+    # Vector 1 (ahora comenzando después del desplazamiento)
+    az1 = azimut1 + 180 if dh1t < 0 else azimut1
+    dh1 = abs(dh1t / np.cos(np.radians(latitud)))
+    dx1 = dh1 * np.sin(np.radians(az1))
+    dy1 = dh1 * np.cos(np.radians(az1))
 
-# Vector auxiliar que une un punto en el eje y con el final de vector 1
-if x1 != 0:
-    m_aux = y1 / x1
-    x_aux = 0
-    y_aux = -m_aux * x1 + y1
-else:
-    x_aux = 0
-    y_aux = 0
+    # Vector 2
+    az2 = azimut2 + 180 if dh2t < 0 else azimut2
+    dh2 = abs(dh2t / np.cos(np.radians(latitud)))
+    dx2 = dh2 * np.sin(np.radians(az2))
+    dy2 = dh2 * np.cos(np.radians(az2))
 
-# Rectas de altura
-mz_aux = (y1 - y_aux) / (x1 - x_aux) if (x1 - x_aux) != 0 else float('inf')
-mz2 = dy2 / dx2 if dx2 != 0 else float('inf')
+    # Sumar el desplazamiento al primer vector (solo el azimut 1 se mueve)
+    dx1_total = dx1 + dx3
+    dy1_total = dy1 + dy3
 
-m1 = -1 / mz_aux if mz_aux != 0 and mz_aux != float('inf') else float('inf')
-m2 = -1 / mz2 if mz2 != 0 and mz2 != float('inf') else float('inf')
+    # Pendientes de vectores y rectas de altura (mantener pendiente calculada cuando el azimut 1 comenzaba en 0,0)
+    mz1 = dy1 / dx1  # Mantener la pendiente de cuando el azimut 1 comenzó en 0,0
+    mz2 = dy2 / dx2
+    m1 = -1 / mz1
+    m2 = -1 / mz2
+    b1 = dy1 - m1 * dx1
+    b2 = dy2 - m2 * dx2
 
-b1 = y1 - m1 * x1 if m1 != float('inf') else float('inf')
-b2 = y2 - m2 * x2 if m2 != float('inf') else float('inf')
-
-# Intersección
-if m1 != m2:
+    # Intersección de las rectas
     x_intersec = (b2 - b1) / (m1 - m2)
     y_intersec = m1 * x_intersec + b1
-else:
-    x_intersec, y_intersec = None, None
 
-# ================== COORDENADAS FINALES ==================
-lat_corte = lat0 + y_intersec / 60 if x_intersec is not None else None
-lon_corte = lon0 + x_intersec / 60 if x_intersec is not None else None
+    # Coordenadas geográficas
+    y_i = y_intersec * np.cos(np.radians(latitud))
+    lat_intersec = latitud + (y_i / 60)
+    lon_intersec = longitud - (x_intersec / 60)
 
-# Mostrar resultados
-if x_intersec is not None and y_intersec is not None:
-    decimal_lat = decimal_a_gm(lat_corte, is_lat=True)
-    decimal_lon = decimal_a_gm(lon_corte, is_lat=False)
+    # Convertir a grados y minutos
+    lat_g, lat_m = decimal_a_grados_minutos(lat_intersec)
+    lon_g, lon_m = decimal_a_grados_minutos(lon_intersec)
+    NS = "N" if lat_intersec > 0 else "S"
+    EW = "W" if lon_intersec > 0 else "E"
 
-    st.markdown(f"**Latitud de corte:** {decimal_lat}")
-    st.markdown(f"**Longitud de corte:** {decimal_lon}")
-else:
-    st.error("No se pudo calcular la intersección.")
+    # ===================== RESULTADOS =====================
+    st.subheader("4. Situación")
+
+    st.markdown("**Coordenadas decimales:**")
+    st.write(f"Latitud: `{lat_intersec:.6f}`")
+    st.write(f"Longitud: `{lon_intersec:.6f}`")
+
+    st.markdown("**Coordenadas en GMS:**")
+    st.write(f"Latitud: `{abs(lat_g)}° {lat_m:.2f}' {NS}`")
+    st.write(f"Longitud: `{abs(lon_g)}° {lon_m:.2f}' {EW}`")
+
+    # ===================== GRÁFICO =====================
+    fig, ax = plt.subplots(figsize=(10, 8))
+    ax.axhline(0, color='black', linewidth=1)
+    ax.axvline(0, color='black', linewidth=1)
+
+    ax.plot([0, dx1_total], [0, dy1_total], 'b', linewidth=2)
+    ax.plot([0, dx2], [0, dy2], 'g', linewidth=2)
+
+    # Rectas perpendiculares (altura)
+    ax.plot([dx1_total - dy1_total, dx1_total + dy1_total], [dy1_total + dx1_total, dy1_total - dx1_total], 'r--', linewidth=2)
+    ax.plot([dx2 - dy2, dx2 + dy2], [dy2 + dx2, dy2 - dx2], 'r--', linewidth=2)
+
+    ax.plot(x_intersec, y_intersec, 'mo', markersize=10)
+    ax.text(x_intersec + 0.5, y_intersec + 0.5,
+            f"Lat: {lat_intersec:.6f}\nLon: {lon_intersec:.6f}", fontsize=12)
+
+    ax.set_xlim(-8, 8)
+    ax.set_ylim(-8, 8)
+    ax.set_aspect('equal', adjustable='box')
+    ax.set_xlabel("Longitud")
+    ax.set_ylabel("Latitud")
+    ax.set_title("Rectas de Altura")
+    ax.grid(True)
+
+    st.pyplot(fig)
