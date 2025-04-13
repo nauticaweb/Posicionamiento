@@ -51,10 +51,6 @@ if st.button("Calcular"):
     dx3 = dh3 * np.sin(np.radians(az3))
     dy3 = dh3 * np.cos(np.radians(az3))
 
-    # Nuevo punto de inicio para el azimut 1, después del desplazamiento
-    x1_offset = dx3
-    y1_offset = dy3
-
     # Vector 1 (ahora comenzando después del desplazamiento)
     az1 = azimut1 + 180 if dh1t < 0 else azimut1
     dh1 = abs(dh1t / np.cos(np.radians(latitud)))
