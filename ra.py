@@ -112,7 +112,7 @@ if st.button("Calcular"):
     ax.plot([dx3, dx3 + dx1], [dy3, dy3 + dy1], 'b', linewidth=2, label="Azimut 1")
     ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label="Azimut 2")
 
-    # Rectas perpendiculares (altura)
+    # Rectas perpendiculares (altura) con la corrección de la intersección
     ax.plot([dx1_total - dy1_total, dx1_total + dy1_total], [dy1_total + dx1_total, dy1_total - dx1_total], 'r--', linewidth=2, label="Altura 1")
     ax.plot([dx2 - dy2, dx2 + dy2], [dy2 + dx2, dy2 - dx2], 'r--', linewidth=2, label="Altura 2")
 
