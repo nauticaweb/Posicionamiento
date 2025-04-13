@@ -106,6 +106,7 @@ if st.button("Calcular"):
     ax.axhline(0, color='black', linewidth=1)
     ax.axvline(0, color='black', linewidth=1)
 
+    # Graficar los vectores
     ax.plot([0, dx1_total], [0, dy1_total], 'b', linewidth=2)
     ax.plot([0, dx2], [0, dy2], 'g', linewidth=2)
 
@@ -113,6 +114,7 @@ if st.button("Calcular"):
     ax.plot([dx1_total - dy1_total, dx1_total + dy1_total], [dy1_total + dx1_total, dy1_total - dx1_total], 'r--', linewidth=2)
     ax.plot([dx2 - dy2, dx2 + dy2], [dy2 + dx2, dy2 - dx2], 'r--', linewidth=2)
 
+    # Punto de intersección
     ax.plot(x_intersec, y_intersec, 'mo', markersize=10)
     ax.text(x_intersec + 0.5, y_intersec + 0.5,
             f"Lat: {lat_intersec:.6f}\nLon: {lon_intersec:.6f}", fontsize=12)
