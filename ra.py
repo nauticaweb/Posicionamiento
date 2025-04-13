@@ -113,8 +113,11 @@ if st.button("Calcular"):
     ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label="Azimut 2")
 
     # Rectas perpendiculares (altura) con la corrección de la intersección
-    # Recta de altura del azimut 1
-    ax.plot([dx1, x_intersec], [dy1, y_intersec], 'r--', linewidth=2, label="Altura 1")
+    # Recta de altura del azimut 1 - debe pasar por el final del azimut 1 (después del desplazamiento)
+    x_vals = np.linspace(dx1, dx1 + dx3, 100)
+    y_vals = m1 * (x_vals - dx1) + dy1
+    ax.plot(x_vals, y_vals, 'r--', linewidth=2, label="Altura 1")
+
     # Recta de altura del azimut 2
     ax.plot([dx2 - dy2, dx2 + dy2], [dy2 + dx2, dy2 - dx2], 'r--', linewidth=2, label="Altura 2")
 
