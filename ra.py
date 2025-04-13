@@ -65,9 +65,9 @@ if st.button("Calcular"):
     # Pendientes de vectores y rectas de altura
     mz1 = dy1 / dx1
     mz2 = dy2 / dx2
-    m1 = -1 / mz1
+    m1 = -1 / mz1  # La pendiente de la recta de altura 1, calculada cuando el azimut 1 partía desde (0,0)
     m2 = -1 / mz2
-    b1 = dy1 - m1 * dx1
+    b1 = dy1 - m1 * dx1  # Intersección de la recta de altura 1, desde el punto de inicio (0,0)
     b2 = dy2 - m2 * dx2
 
     # Intersección
@@ -110,8 +110,12 @@ if st.button("Calcular"):
     # El vector de azimut 2 sigue comenzando en (0,0), ya que no cambia
     ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label="Azimut 2")
 
-    # Rectas perpendiculares (altura)
-    ax.plot([dx3 - dy1, dx3 + dx1], [dy3 + dx1, dy3 - dx1], 'r--', linewidth=2, label="Recta Altura 1")
+    # Recta de altura 1, pasando por el punto final del azimut 1
+    # La pendiente de la recta es m1 y pasa por (dx3 + dx1, dy3 + dy1)
+    b1_new = (dy3 + dy1) - m1 * (dx3 + dx1)
+    ax.plot([dx3 + dx1 - dy1, dx3 + dx1 + dy1], [dy3 + dy1 + dx1, dy3 + dy1 - dx1], 'r--', linewidth=2, label="Recta Altura 1")
+
+    # Recta de altura 2
     ax.plot([dx2 - dy2, dx2 + dy2], [dy2 + dx2, dy2 - dx2], 'r--', linewidth=2, label="Recta Altura 2")
 
     # Marca la intersección
