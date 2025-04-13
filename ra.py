@@ -66,7 +66,7 @@ if st.button("Calcular"):
     # Cálculo de las rectas de altura
     if dx1 != 0 and dx2 != 0:
         # Cálculo de la pendiente de cada vector
-        mz1 = dy1 / dx1
+        mz1 = (dy1-dy0) / (dx1-dx1)
         mz2 = dy2 / dx2
 
         # Cálculo de las pendientes de las rectas perpendiculares
