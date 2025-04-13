@@ -145,3 +145,29 @@ if interseccion:
     st.success(f"Intersección encontrada en: x = {x_intersec:.2f}, y = {y_intersec:.2f}")
 else:
     st.warning("No se pudo calcular la intersección (posible división por cero).")
+
+
+# ====== Coordenadas definitivas (lat/lon) ======
+if interseccion:
+    dx_final, dy_final = interseccion
+
+    # Aproximación simple: 1 minuto de latitud ≈ 1.852 km = 1 milla náutica
+    milla_nautica_km = 1.852
+    metros_por_minuto = milla_nautica_km * 1000
+    grados_por_metro = 1 / (60 * metros_por_minuto)  # 1° = 60 min
+
+    # Conversión de desplazamientos a grados
+    lat_final = lat + dy_final * grados_por_metro
+    lon_final = lon + (dx_final * grados_por_metro) / np.cos(np.radians(lat))
+
+    # Conversión a GMM
+    lat_g, lat_m = decimal_a_gmm(lat_final)
+    lon_g, lon_m = decimal_a_gmm(lon_final)
+
+    # Direcciones
+    lat_dir = "N" if lat_final >= 0 else "S"
+    lon_dir = "E" if lon_final >= 0 else "W"
+
+    st.subheader("5. Coordenadas Finales Estimadas")
+    st.markdown(f"**Latitud:** {abs(lat_final):.5f}° {lat_dir}  →  {abs(lat_g)}° {lat_m:.1f}′ {lat_dir}")
+    st.markdown(f"**Longitud:** {abs(lon_final):.5f}° {lon_dir}  →  {abs(lon_g)}° {lon_m:.1f}′ {lon_dir}")
