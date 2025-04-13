@@ -77,7 +77,7 @@ if st.button("Calcular"):
     dx1_total = dx1 + dx3
     dy1_total = dy1 + dy3
 
-    # Intersección de las rectas de altura
+    # Calculamos la intersección de las rectas de altura
     x_intersec = (b2 - b1) / (m1 - m2)
     y_intersec = m1 * x_intersec + b1
 
@@ -113,7 +113,9 @@ if st.button("Calcular"):
     ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label="Azimut 2")
 
     # Rectas perpendiculares (altura) con la corrección de la intersección
-    ax.plot([dx1_total - dy1_total, dx1_total + dy1_total], [dy1_total + dx1_total, dy1_total - dx1_total], 'r--', linewidth=2, label="Altura 1")
+    # Recta de altura del azimut 1
+    ax.plot([dx1, x_intersec], [dy1, y_intersec], 'r--', linewidth=2, label="Altura 1")
+    # Recta de altura del azimut 2
     ax.plot([dx2 - dy2, dx2 + dy2], [dy2 + dx2, dy2 - dx2], 'r--', linewidth=2, label="Altura 2")
 
     ax.plot(x_intersec, y_intersec, 'mo', markersize=10)
