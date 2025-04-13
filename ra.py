@@ -125,19 +125,13 @@ ax.legend()
 ax.set_title("Vectores y Rectas de Altura")
 st.pyplot(fig)
 
-# ==== LATITUD Y LONGITUD EN GRADOS Y MINUTOS CON DÉCIMAS ====
+# ==== COORDENADAS DEL PUNTO DE CORTE ====
 
-def decimal_a_gm(decimal, is_lat=True):
-    direccion = ""
-    if is_lat:
-        direccion = "N" if decimal >= 0 else "S"
-    else:
-        direccion = "E" if decimal >= 0 else "O"
-    decimal = abs(decimal)
-    grados = int(decimal)
-    minutos = round((decimal - grados) * 60, 1)
-    return f"{grados}° {minutos}' {direccion}"
+lat_corte = lat_decimal + y_intersec / 60
+lon_corte = lon_decimal + x_intersec / 60
 
-st.subheader("Coordenadas ingresadas:")
-st.markdown(f"**Latitud:** {decimal_a_gm(lat_decimal, is_lat=True)}")
-st.markdown(f"**Longitud:** {decimal_a_gm(lon_decimal, is_lat=False)}")
+# ==== MOSTRAR RESULTADO EN FORMATO GRADOS Y MINUTOS CON DÉCIMAS ====
+
+st.subheader("Coordenadas del punto de corte:")
+st.markdown(f"**Latitud:** {decimal_a_gm(lat_corte, is_lat=True)}")
+st.markdown(f"**Longitud:** {decimal_a_gm(lon_corte, is_lat=False)}")
