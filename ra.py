@@ -63,17 +63,22 @@ if st.button("Calcular"):
     dx3 = dh3 * np.sin(np.radians(az3))
     dy3 = dh3 * np.cos(np.radians(az3))
 
-    # Calculando la pendiente de la recta de altura 1
+    # Calculando la pendiente de la recta de altura 1 (azimut 1)
     mz1 = dy1 / dx1
     m1 = -1 / mz1
     b1 = dy1 - m1 * dx1
+
+    # Calculando la pendiente de la recta de altura 2 (azimut 2)
+    mz2 = dy2 / dx2
+    m2 = -1 / mz2
+    b2 = dy2 - m2 * dx2
 
     # Nuevos puntos para el vector 1 después de aplicar el desplazamiento
     dx1_total = dx1 + dx3
     dy1_total = dy1 + dy3
 
-    # Intersección
-    x_intersec = (b1) / (m1)
+    # Intersección de las rectas de altura
+    x_intersec = (b2 - b1) / (m1 - m2)
     y_intersec = m1 * x_intersec + b1
 
     # Coordenadas geográficas
@@ -108,7 +113,8 @@ if st.button("Calcular"):
     ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label="Azimut 2")
 
     # Rectas perpendiculares (altura)
-    ax.plot([dx1_total - dy1_total, dx1_total + dy1_total], [dy1_total + dx1_total, dy1_total - dx1_total], 'r--', linewidth=2)
+    ax.plot([dx1_total - dy1_total, dx1_total + dy1_total], [dy1_total + dx1_total, dy1_total - dx1_total], 'r--', linewidth=2, label="Altura 1")
+    ax.plot([dx2 - dy2, dx2 + dy2], [dy2 + dx2, dy2 - dx2], 'r--', linewidth=2, label="Altura 2")
 
     ax.plot(x_intersec, y_intersec, 'mo', markersize=10)
     ax.text(x_intersec + 0.5, y_intersec + 0.5,
