@@ -1,35 +1,42 @@
+import streamlit as st
 import numpy as np
-
-# ================== DATOS DE ENTRADA ==================
-# Estima en grados y minutos decimales
-lat_g, lat_m = 41, 37.1  # Norte
-lon_g, lon_m = 50, 12.6  # Oeste
-
-# Azimut 1 y su diferencia de altura
-azimut1 = 218.3
-dh1 = 5
-
-# Azimut 2 y su diferencia de altura
-azimut2 = 168
-dh2 = -4.5
-
-# Rumbo del desplazamiento y su distancia
-rumbo = 327
-dh0 = 2
 
 # ================== FUNCIONES ==================
 def gms_a_decimal(grados, minutos, direccion):
+    """Convierte coordenadas en grados, minutos y dirección a decimal"""
     decimal = grados + minutos / 60
     if direccion in ['S', 'O']:
         decimal *= -1
     return decimal
 
 def decimal_a_gm(decimal, is_lat=False):
+    """Convierte coordenadas decimales a grados y minutos con decimales"""
     direccion = 'N' if decimal >= 0 else 'S' if is_lat else 'E' if decimal >= 0 else 'O'
     decimal = abs(decimal)
     grados = int(decimal)
     minutos = (decimal - grados) * 60
     return f"{grados}° {minutos:.2f}' {direccion}"
+
+# ================== STREAMLIT INTERFAZ ==================
+st.title("Cálculo de Punto de Corte")
+
+# Datos de entrada: latitud y longitud
+st.sidebar.header("Datos de Entrada")
+lat_g = st.sidebar.number_input("Latitud (Grados)", min_value=-90.0, max_value=90.0, value=41.0)
+lat_m = st.sidebar.number_input("Latitud (Minutos)", min_value=0.0, max_value=60.0, value=37.1)
+lon_g = st.sidebar.number_input("Longitud (Grados)", min_value=-180.0, max_value=180.0, value=50.0)
+lon_m = st.sidebar.number_input("Longitud (Minutos)", min_value=0.0, max_value=60.0, value=12.6)
+
+# Azimut y diferencia de altura
+azimut1 = st.sidebar.number_input("Azimut 1 (°)", min_value=0.0, max_value=360.0, value=218.3)
+dh1 = st.sidebar.number_input("Diferencia de altura 1", min_value=-100.0, max_value=100.0, value=5.0)
+
+azimut2 = st.sidebar.number_input("Azimut 2 (°)", min_value=0.0, max_value=360.0, value=168.0)
+dh2 = st.sidebar.number_input("Diferencia de altura 2", min_value=-100.0, max_value=100.0, value=-4.5)
+
+# Rumbo del desplazamiento y distancia
+rumbo = st.sidebar.number_input("Rumbo del desplazamiento (°)", min_value=0.0, max_value=360.0, value=327.0)
+dh0 = st.sidebar.number_input("Distancia del desplazamiento (millas náuticas)", min_value=0.0, max_value=100.0, value=2.0)
 
 # ================== CÁLCULO ==================
 # Punto de estima en decimal
@@ -79,12 +86,15 @@ else:
     x_intersec, y_intersec = None, None
 
 # ================== COORDENADAS FINALES ==================
-lat_corte = lat0 + y_intersec / 60
-lon_corte = lon0 + x_intersec / 60
-
-decimal_lat = decimal_a_gm(lat_corte, is_lat=True)
-decimal_lon = decimal_a_gm(lon_corte, is_lat=False)
+lat_corte = lat0 + y_intersec / 60 if x_intersec is not None else None
+lon_corte = lon0 + x_intersec / 60 if x_intersec is not None else None
 
 # Mostrar resultados
-print(f"**Latitud de corte:** {decimal_lat}")
-print(f"**Longitud de corte:** {decimal_lon}")
+if x_intersec is not None and y_intersec is not None:
+    decimal_lat = decimal_a_gm(lat_corte, is_lat=True)
+    decimal_lon = decimal_a_gm(lon_corte, is_lat=False)
+
+    st.markdown(f"**Latitud de corte:** {decimal_lat}")
+    st.markdown(f"**Longitud de corte:** {decimal_lon}")
+else:
+    st.error("No se pudo calcular la intersección.")
