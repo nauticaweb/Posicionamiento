@@ -101,30 +101,38 @@ if st.button("Calcular"):
     st.write(f"Latitud: `{abs(lat_g)}° {lat_m:.2f}' {NS}`")
     st.write(f"Longitud: `{abs(lon_g)}° {lon_m:.2f}' {EW}`")
 
-    # ===================== GRÁFICO =====================
-    fig, ax = plt.subplots(figsize=(10, 8))
-    ax.axhline(0, color='black', linewidth=1)
-    ax.axvline(0, color='black', linewidth=1)
+# ===================== GRÁFICO =====================
+fig, ax = plt.subplots(figsize=(10, 8))
+ax.axhline(0, color='black', linewidth=1)
+ax.axvline(0, color='black', linewidth=1)
 
-    # Graficar los vectores
-    ax.plot([0, dx1_total], [0, dy1_total], 'b', linewidth=2)
-    ax.plot([0, dx2], [0, dy2], 'g', linewidth=2)
+# Primero se dibuja el vector de desplazamiento
+ax.plot([0, dx3], [0, dy3], 'orange', linewidth=2, label="Desplazamiento")
 
-    # Rectas perpendiculares (altura)
-    ax.plot([dx1_total - dy1_total, dx1_total + dy1_total], [dy1_total + dx1_total, dy1_total - dx1_total], 'r--', linewidth=2)
-    ax.plot([dx2 - dy2, dx2 + dy2], [dy2 + dx2, dy2 - dx2], 'r--', linewidth=2)
+# Luego el vector de azimut 1, pero comenzando en el punto final del desplazamiento
+ax.plot([dx3, dx3 + dx1], [dy3, dy3 + dy1], 'b', linewidth=2, label="Azimut 1")
 
-    # Punto de intersección
-    ax.plot(x_intersec, y_intersec, 'mo', markersize=10)
-    ax.text(x_intersec + 0.5, y_intersec + 0.5,
-            f"Lat: {lat_intersec:.6f}\nLon: {lon_intersec:.6f}", fontsize=12)
+# El vector de azimut 2 sigue comenzando en (0,0), ya que no cambia
+ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label="Azimut 2")
 
-    ax.set_xlim(-8, 8)
-    ax.set_ylim(-8, 8)
-    ax.set_aspect('equal', adjustable='box')
-    ax.set_xlabel("Longitud")
-    ax.set_ylabel("Latitud")
-    ax.set_title("Rectas de Altura")
-    ax.grid(True)
+# Rectas perpendiculares (altura)
+ax.plot([dx3 - dy1, dx3 + dx1], [dy3 + dx1, dy3 - dx1], 'r--', linewidth=2, label="Recta Altura 1")
+ax.plot([dx2 - dy2, dx2 + dy2], [dy2 + dx2, dy2 - dx2], 'r--', linewidth=2, label="Recta Altura 2")
 
-    st.pyplot(fig)
+# Marca la intersección
+ax.plot(x_intersec, y_intersec, 'mo', markersize=10)
+ax.text(x_intersec + 0.5, y_intersec + 0.5,
+        f"Lat: {lat_intersec:.6f}\nLon: {lon_intersec:.6f}", fontsize=12)
+
+ax.set_xlim(-8, 8)
+ax.set_ylim(-8, 8)
+ax.set_aspect('equal', adjustable='box')
+ax.set_xlabel("Longitud")
+ax.set_ylabel("Latitud")
+ax.set_title("Rectas de Altura con Desplazamiento")
+ax.grid(True)
+
+# Leyenda
+ax.legend()
+
+st.pyplot(fig)
