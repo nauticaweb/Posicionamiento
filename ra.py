@@ -110,7 +110,7 @@ if st.button("Calcular"):
     # El vector de azimut 2 sigue comenzando en (0,0), ya que no cambia
     ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label="Azimut 2")
 
-    # Recta de altura 1, pasando por el punto final del azimut 1
+    # Recta de altura 1, pasando por el punto final de azimut 1
     # La pendiente de la recta es m1 y pasa por (dx3 + dx1, dy3 + dy1)
     b1_new = (dy3 + dy1) - m1 * (dx3 + dx1)
     ax.plot([dx3 + dx1 - dy1, dx3 + dx1 + dy1], [dy3 + dy1 + dx1, dy3 + dy1 - dx1], 'r--', linewidth=2, label="Recta Altura 1")
