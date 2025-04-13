@@ -35,9 +35,9 @@ dh1t = st.number_input("Diferencia de alturas 1", step=0.1, value=0.0)
 azimut2 = st.number_input("Azimut 2 (°)", step=1.0, value=0.0)
 dh2t = st.number_input("Diferencia de alturas 2", step=0.1, value=0.0)
 
-# Añadir inputs para el rumbo de desplazamiento y la distancia navegada
-rumbo_desplazamiento = st.number_input("Rumbo de desplazamiento (°)", step=1.0, value=0.0)
-distancia_desplazamiento = st.number_input("Distancia de desplazamiento", step=0.1, value=0.0)
+st.header("3. Desplazamiento")
+azimut3 = st.number_input("Rumbo de desplazamiento (°)", step=1.0, value=0.0)
+dh3t = st.number_input("Distancia navegada", step=0.1, value=0.0)
 
 # ===================== BOTÓN =====================
 if st.button("Calcular"):
@@ -57,21 +57,23 @@ if st.button("Calcular"):
     dx2 = dh2 * np.sin(np.radians(az2))
     dy2 = dh2 * np.cos(np.radians(az2))
 
-    # Cálculos para el desplazamiento (dx3 y dy3)
-    dh3 = distancia_desplazamiento / np.cos(np.radians(latitud))  # Ajustar por la latitud
-    dx3 = dh3 * np.sin(np.radians(rumbo_desplazamiento))
-    dy3 = dh3 * np.cos(np.radians(rumbo_desplazamiento))
+    # Vector 3 (Desplazamiento)
+    az3 = azimut3 + 180 if dh3t < 0 else azimut3
+    dh3 = abs(dh3t / np.cos(np.radians(latitud)))
+    dx3 = dh3 * np.sin(np.radians(az3))
+    dy3 = dh3 * np.cos(np.radians(az3))
 
-    # Pendientes de vectores y rectas de altura
+    # Calculando la pendiente de la recta de altura 1
     mz1 = dy1 / dx1
-    mz2 = dy2 / dx2
-    m1 = -1 / mz1  # La pendiente de la recta de altura 1, calculada cuando el azimut 1 partía desde (0,0)
-    m2 = -1 / mz2
-    b1 = dy1 - m1 * dx1  # Intersección de la recta de altura 1, desde el punto de inicio (0,0)
-    b2 = dy2 - m2 * dx2
+    m1 = -1 / mz1
+    b1 = dy1 - m1 * dx1
+
+    # Nuevos puntos para el vector 1 después de aplicar el desplazamiento
+    dx1_total = dx1 + dx3
+    dy1_total = dy1 + dy3
 
     # Intersección
-    x_intersec = (b2 - b1) / (m1 - m2)
+    x_intersec = (b1) / (m1)
     y_intersec = m1 * x_intersec + b1
 
     # Coordenadas geográficas
@@ -101,24 +103,13 @@ if st.button("Calcular"):
     ax.axhline(0, color='black', linewidth=1)
     ax.axvline(0, color='black', linewidth=1)
 
-    # Primero se dibuja el vector de desplazamiento
     ax.plot([0, dx3], [0, dy3], 'orange', linewidth=2, label="Desplazamiento")
-
-    # Luego el vector de azimut 1, pero comenzando en el punto final del desplazamiento
     ax.plot([dx3, dx3 + dx1], [dy3, dy3 + dy1], 'b', linewidth=2, label="Azimut 1")
-
-    # El vector de azimut 2 sigue comenzando en (0,0), ya que no cambia
     ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label="Azimut 2")
 
-    # Recta de altura 1, pasando por el punto final de azimut 1
-    # La pendiente de la recta es m1 y pasa por (dx3 + dx1, dy3 + dy1)
-    b1_new = (dy3 + dy1) - m1 * (dx3 + dx1)
-    ax.plot([dx3 + dx1 - dy1, dx3 + dx1 + dy1], [dy3 + dy1 + dx1, dy3 + dy1 - dx1], 'r--', linewidth=2, label="Recta Altura 1")
+    # Rectas perpendiculares (altura)
+    ax.plot([dx1_total - dy1_total, dx1_total + dy1_total], [dy1_total + dx1_total, dy1_total - dx1_total], 'r--', linewidth=2)
 
-    # Recta de altura 2
-    ax.plot([dx2 - dy2, dx2 + dy2], [dy2 + dx2, dy2 - dx2], 'r--', linewidth=2, label="Recta Altura 2")
-
-    # Marca la intersección
     ax.plot(x_intersec, y_intersec, 'mo', markersize=10)
     ax.text(x_intersec + 0.5, y_intersec + 0.5,
             f"Lat: {lat_intersec:.6f}\nLon: {lon_intersec:.6f}", fontsize=12)
@@ -128,10 +119,7 @@ if st.button("Calcular"):
     ax.set_aspect('equal', adjustable='box')
     ax.set_xlabel("Longitud")
     ax.set_ylabel("Latitud")
-    ax.set_title("Rectas de Altura con Desplazamiento")
+    ax.set_title("Rectas de Altura")
     ax.grid(True)
-
-    # Leyenda
-    ax.legend()
 
     st.pyplot(fig)
