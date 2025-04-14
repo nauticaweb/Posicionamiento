@@ -161,8 +161,8 @@ if st.button("Calcular"):
     ax2.plot([0, x_angle], [0, y_angle], 'purple', linewidth=2)
     ax2.annotate(f"{abs(latitud):.2f}°", (x_angle + 0.3, y_angle), fontsize=12)
 
-    ax2.set_xlim(-6, 6)
-    ax2.set_ylim(-6, 6)
+    ax2.set_xlim(-8, 8)
+    ax2.set_ylim(-8, 8)
     ax2.set_aspect('equal', adjustable='box')
     ax2.set_title("Ángulo igual a la latitud")
     ax2.grid(True)
