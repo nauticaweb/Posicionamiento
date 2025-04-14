@@ -45,64 +45,50 @@ if st.button("Calcular"):
     latitud = gms_a_decimal(lat_grados, lat_minutos, lat_segundos)
     longitud = gms_a_decimal(lon_grados, lon_minutos, lon_segundos)
 
-    # Vector Azimut 1
+    # ================== VECTORES ==================
+    # Vector 1 (azimut 1)
     az1 = azimut1 + 180 if dh1t < 0 else azimut1
     dh1 = abs(dh1t / np.cos(np.radians(latitud)))
     dx1 = dh1 * np.sin(np.radians(az1))
     dy1 = dh1 * np.cos(np.radians(az1))
 
-    # Vector Azimut 2
+    # Vector 2 (azimut 2)
     az2 = azimut2 + 180 if dh2t < 0 else azimut2
     dh2 = abs(dh2t / np.cos(np.radians(latitud)))
     dx2 = dh2 * np.sin(np.radians(az2))
     dy2 = dh2 * np.cos(np.radians(az2))
 
-    # Vector Desplazamiento
-    desplazamiento = abs(distancia / np.cos(np.radians(latitud)))
-    dxD = desplazamiento * np.sin(np.radians(rumbo))
-    dyD = desplazamiento * np.cos(np.radians(rumbo))
+    # Vector desplazamiento
+    dD = abs(distancia / np.cos(np.radians(latitud)))
+    dxD = dD * np.sin(np.radians(rumbo))
+    dyD = dD * np.cos(np.radians(rumbo))
 
-    # Rectas de altura
+    # ================== RECTAS DE ALTURA ==================
+    # Rectas perpendiculares
     mz1 = dy1 / dx1
     mz2 = dy2 / dx2
     m1 = -1 / mz1
     m2 = -1 / mz2
+
     b1 = dy1 - m1 * dx1
     b2 = dy2 - m2 * dx2
 
-    # Punto de corte original (posición observada sin desplazamiento)
+    # Intersección original
     x_intersec = (b2 - b1) / (m1 - m2)
     y_intersec = m1 * x_intersec + b1
 
-    # Nueva recta paralela a la recta 1 que pasa por el final de azimut1 + desplazamiento
-    dx1D = dx1 + dxD
-    dy1D = dy1 + dyD
-    b1D = dy1D - m1 * dx1D
+    # Nueva posición del vector azimut 1 tras desplazamiento
+    dx1n = dxD + dx1
+    dy1n = dyD + dy1
+    b1_nuevo = dy1n - m1 * dx1n
 
-    # Nuevo punto de corte (con desplazamiento)
-    x_intersec_nueva = (b2 - b1D) / (m1 - m2)
-    y_intersec_nueva = m1 * x_intersec_nueva + b1D
+    # Nueva intersección con la recta del azimut 2
+    x_intersec_nueva = (b2 - b1_nuevo) / (m1 - m2)
+    y_intersec_nueva = m1 * x_intersec_nueva + b1_nuevo
 
     # ===================== RESULTADOS =====================
-    st.subheader("4. Resultados")
+    st.subheader("4. Posición observada (con desplazamiento)")
 
-    # Posición observada original
-    y_i = y_intersec * np.cos(np.radians(latitud))
-    lat_intersec = latitud + (y_i / 60)
-    lon_intersec = longitud - (x_intersec / 60)
-
-    lat_g, lat_m = decimal_a_grados_minutos(lat_intersec)
-    lon_g, lon_m = decimal_a_grados_minutos(lon_intersec)
-    NS = "N" if lat_intersec > 0 else "S"
-    EW = "W" if lon_intersec > 0 else "E"
-
-    st.markdown("**Posición observada (sin desplazamiento):**")
-    st.write(f"Latitud: `{lat_intersec:.6f}`")
-    st.write(f"Longitud: `{lon_intersec:.6f}`")
-    st.write(f"Latitud: `{abs(lat_g)}° {lat_m:.2f}' {NS}`")
-    st.write(f"Longitud: `{abs(lon_g)}° {lon_m:.2f}' {EW}`")
-
-    # Posición observada con desplazamiento
     y_i_nueva = y_intersec_nueva * np.cos(np.radians(latitud))
     lat_intersec_nueva = latitud + (y_i_nueva / 60)
     lon_intersec_nueva = longitud - (x_intersec_nueva / 60)
@@ -112,8 +98,47 @@ if st.button("Calcular"):
     NSn = "N" if lat_intersec_nueva > 0 else "S"
     EWn = "W" if lon_intersec_nueva > 0 else "E"
 
-    st.markdown("**Posición observada (con desplazamiento):**")
     st.write(f"Latitud: `{lat_intersec_nueva:.6f}`")
     st.write(f"Longitud: `{lon_intersec_nueva:.6f}`")
     st.write(f"Latitud: `{abs(lat_gn)}° {lat_mn:.2f}' {NSn}`")
     st.write(f"Longitud: `{abs(lon_gn)}° {lon_mn:.2f}' {EWn}`")
+
+    # ===================== GRÁFICO =====================
+    fig, ax = plt.subplots(figsize=(10, 8))
+
+    ax.axhline(0, color='black', linewidth=1)
+    ax.axvline(0, color='black', linewidth=1)
+
+    # Azimut 2
+    ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
+    x_r2 = np.array([dx2 - dy2, dx2 + dy2])
+    y_r2 = m2 * x_r2 + b2
+    ax.plot(x_r2, y_r2, 'g--', linewidth=2, label='Altura 2')
+
+    # Desplazamiento
+    ax.plot([0, dxD], [0, dyD], 'c', linewidth=2, label='Desplazamiento')
+
+    # Azimut 1 desde el extremo del desplazamiento
+    ax.plot([dxD, dxD + dx1], [dyD, dyD + dy1], 'b', linewidth=2, label='Azimut 1')
+
+    # Recta de altura desplazada
+    x_r1 = np.array([dx1n - 5, dx1n + 5])
+    y_r1 = m1 * x_r1 + b1_nuevo
+    ax.plot(x_r1, y_r1, 'b--', linewidth=2, label='Altura 1 desplazada')
+
+    # Punto de corte nuevo
+    ax.plot(x_intersec_nueva, y_intersec_nueva, 'mo', markersize=10)
+    ax.text(x_intersec_nueva + 0.3, y_intersec_nueva + 0.3,
+            f"Lat: {lat_intersec_nueva:.5f}\nLon: {lon_intersec_nueva:.5f}",
+            fontsize=10, color='purple')
+
+    ax.set_xlim(-8, 8)
+    ax.set_ylim(-8, 8)
+    ax.set_aspect('equal', adjustable='box')
+    ax.set_xlabel("Longitud")
+    ax.set_ylabel("Latitud")
+    ax.set_title("Rectas de Altura con Desplazamiento")
+    ax.grid(True)
+    ax.legend()
+
+    st.pyplot(fig)
