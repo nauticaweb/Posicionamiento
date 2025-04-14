@@ -87,7 +87,7 @@ if st.button("Calcular"):
     y_intersec_nueva = m1 * x_intersec_nueva + b1_nuevo
 
     # ===================== RESULTADOS =====================
-    st.subheader("4. Posición observada (con desplazamiento)")
+    st.subheader("4. Posición observada")
 
     y_i_nueva = y_intersec_nueva * np.cos(np.radians(latitud))
     lat_intersec_nueva = latitud + (y_i_nueva / 60)
@@ -98,8 +98,6 @@ if st.button("Calcular"):
     NSn = "N" if lat_intersec_nueva > 0 else "S"
     EWn = "W" if lon_intersec_nueva > 0 else "E"
 
-    st.write(f"Latitud: `{lat_intersec_nueva:.6f}`")
-    st.write(f"Longitud: `{lon_intersec_nueva:.6f}`")
     st.write(f"Latitud: `{abs(lat_gn)}° {lat_mn:.2f}' {NSn}`")
     st.write(f"Longitud: `{abs(lon_gn)}° {lon_mn:.2f}' {EWn}`")
 
