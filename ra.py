@@ -17,7 +17,7 @@ def decimal_a_grados_minutos(decimales):
 # ==================== INTERFAZ =====================
 st.title("Cálculo de posición por Rectas de Altura")
 
-st.header("1. Punto de estima (coordenadas)")
+st.header("1. Punto de estima")
 col1, col2 = st.columns(2)
 with col1:
     lat_grados = st.number_input("Latitud grados", step=1, format="%d", value=0)
@@ -113,18 +113,18 @@ if st.button("Calcular"):
     ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
     x_r2 = np.array([dx2 - dy2, dx2 + dy2])
     y_r2 = m2 * x_r2 + b2
-    ax.plot(x_r2, y_r2, 'g--', linewidth=2, label='Altura 2')
+    ax.plot(x_r2, y_r2, 'r--', linewidth=2, label='Altura 2')
 
     # Desplazamiento
-    ax.plot([0, dxD], [0, dyD], 'c', linewidth=2, label='Desplazamiento')
+    ax.plot([0, dxD], [0, dyD], 'b', linewidth=2, label='Desplazamiento')
 
     # Azimut 1 desde el extremo del desplazamiento
-    ax.plot([dxD, dxD + dx1], [dyD, dyD + dy1], 'b', linewidth=2, label='Azimut 1')
+    ax.plot([dxD, dxD + dx1], [dyD, dyD + dy1], 'y', linewidth=2, label='Azimut 1')
 
     # Recta de altura desplazada
     x_r1 = np.array([dx1n - 5, dx1n + 5])
     y_r1 = m1 * x_r1 + b1_nuevo
-    ax.plot(x_r1, y_r1, 'b--', linewidth=2, label='Altura 1 desplazada')
+    ax.plot(x_r1, y_r1, 'r--', linewidth=2, label='Altura 1 desplazada')
 
     # Punto de corte nuevo
     ax.plot(x_intersec_nueva, y_intersec_nueva, 'mo', markersize=10)
@@ -137,7 +137,7 @@ if st.button("Calcular"):
     ax.set_aspect('equal', adjustable='box')
     ax.set_xlabel("Longitud")
     ax.set_ylabel("Latitud")
-    ax.set_title("Rectas de Altura con Desplazamiento")
+    ax.set_title("Rectas de Altura")
     ax.grid(True)
     ax.legend()
 
