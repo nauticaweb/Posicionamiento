@@ -150,33 +150,25 @@ if st.button("Calcular"):
     st.pyplot(fig)
 
      # ===================== GRÁFICO 2: Ángulo igual a la latitud =====================
-    fig2, ax2 = plt.subplots(figsize=(6, 6))
-    ax2.axhline(0, color='black')
-    ax2.axvline(0, color='black')
+    fig2, ax2 = plt.subplots(figsize=(6, 4))
 
-    r = 8  # longitud del vector hasta el borde
+    r = 6  # Longitud de las líneas
+
+    # Línea horizontal desde el origen
+    ax2.plot([0, r], [0, 0], color='black', linewidth=2)
+
+    # Línea oblicua con ángulo igual a la latitud
     x_angle = r * np.cos(np.radians(latitud))
     y_angle = r * np.sin(np.radians(latitud))
+    ax2.plot([0, x_angle], [0, y_angle], color='purple', linewidth=2)
 
-    ax2.plot([0, x_angle], [0, y_angle], 'purple', linewidth=2)
-    ax2.annotate(f"{abs(latitud):.2f}°", (x_angle + 0.3, y_angle), fontsize=12)
+    # Texto con el ángulo
+    ax2.text(1, 0.3, f"{abs(latitud):.2f}°", fontsize=12, color='purple')
 
-    ax2.set_xlim(-8, 8)
-    ax2.set_ylim(-8, 8)
-    ax2.set_aspect('equal', adjustable='box')
+    # Estética: sin ejes ni bordes
+    ax2.set_xlim(0, 6.5)
+    ax2.set_ylim(0, 4)
+    ax2.axis('off')
     ax2.set_title("Ángulo igual a la latitud")
 
-    # Divisiones cada 0.5
-    ticks = np.arange(-8, 8.5, 0.5)
-
-    # Etiquetas solo en enteros pares negativos para X (bajo el eje X) y Y (izquierda del eje Y)
-    x_labels = [str(int(t)) if t % 2 == 0 and t < 0 else "" for t in ticks]
-    y_labels = [str(int(t)) if t % 2 == 0 and t < 0 else "" for t in ticks]
-
-    ax2.set_xticks(ticks)
-    ax2.set_xticklabels(x_labels)
-    ax2.set_yticks(ticks)
-    ax2.set_yticklabels(y_labels)
-
-    ax2.grid(True)
     st.pyplot(fig2)
