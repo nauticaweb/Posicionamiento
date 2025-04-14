@@ -149,7 +149,7 @@ if st.button("Calcular"):
 
     st.pyplot(fig)
 
-# ===================== GRÁFICO 2: Ángulo igual a latitud =====================
+    # ===================== GRÁFICO 2: Ángulo igual a latitud =====================
 fig2, ax2 = plt.subplots(figsize=(6, 6))
 ax2.axhline(0, color='black')
 ax2.axvline(0, color='black')
