@@ -107,6 +107,10 @@ if st.button("Calcular"):
     ax.axhline(0, color='black', linewidth=1)
     ax.axvline(0, color='black', linewidth=1)
 
+   
+     # Azimut 1 desde el extremo del desplazamiento
+    ax.plot([dxD, dxD + dx1], [dyD, dyD + dy1], 'y', linewidth=2, label='Azimut 1')
+
     # Azimut 2
     ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
     x_r2 = np.array([dx2 - dy2, dx2 + dy2])
@@ -116,9 +120,7 @@ if st.button("Calcular"):
     # Desplazamiento
     ax.plot([0, dxD], [0, dyD], 'b', linewidth=2, label='Desplazamiento')
 
-    # Azimut 1 desde el extremo del desplazamiento
-    ax.plot([dxD, dxD + dx1], [dyD, dyD + dy1], 'y', linewidth=2, label='Azimut 1')
-
+    
     # Recta de altura desplazada
     x_r1 = np.array([dx1n - 5, dx1n + 5])
     y_r1 = m1 * x_r1 + b1_nuevo
