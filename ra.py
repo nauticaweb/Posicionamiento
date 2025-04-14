@@ -148,3 +148,23 @@ if st.button("Calcular"):
     ax.legend()
 
     st.pyplot(fig)
+
+# ===================== GRÁFICO 2: Ángulo igual a latitud =====================
+fig2, ax2 = plt.subplots(figsize=(6, 6))
+ax2.axhline(0, color='black')
+ax2.axvline(0, color='black')
+
+r = 5  # longitud del vector del ángulo
+x_angle = r * np.cos(np.radians(latitud))
+y_angle = r * np.sin(np.radians(latitud))
+
+ax2.plot([0, x_angle], [0, y_angle], 'purple', linewidth=2)
+ax2.annotate(f"{abs(latitud):.2f}°", (x_angle + 0.3, y_angle), fontsize=12)
+
+ax2.set_xlim(-6, 6)
+ax2.set_ylim(-6, 6)
+ax2.set_aspect('equal', adjustable='box')
+ax2.set_title("Ángulo igual a la latitud")
+ax2.grid(True)
+
+st.pyplot(fig2)
