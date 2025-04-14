@@ -94,10 +94,10 @@ if st.button("Calcular"):
     lon_intersec_nueva = longitud - (x_intersec_nueva / 60)
 
 # Corregir longitud si pasa de 180
-    if lon_intersec_nueva < -180:
-    lon_intersec_nueva += 360
-elif lon_intersec_nueva > 180:
-    lon_intersec_nueva -= 360
+    if  lon_intersec_nueva < -180:
+        lon_intersec_nueva += 360
+  elif. lon_intersec_nueva > 180:
+        lon_intersec_nueva -= 360
 
     lat_gn, lat_mn = decimal_a_grados_minutos(lat_intersec_nueva)
     lon_gn, lon_mn = decimal_a_grados_minutos(lon_intersec_nueva)
