@@ -154,7 +154,7 @@ if st.button("Calcular"):
     ax2.axhline(0, color='black')
     ax2.axvline(0, color='black')
 
-    r = 8  # ahora la línea alcanza el borde del gráfico
+    r = 8  # longitud del vector hasta el borde
     x_angle = r * np.cos(np.radians(latitud))
     y_angle = r * np.sin(np.radians(latitud))
 
@@ -166,9 +166,17 @@ if st.button("Calcular"):
     ax2.set_aspect('equal', adjustable='box')
     ax2.set_title("Ángulo igual a la latitud")
 
-    # Ejes numerados cada 0.5 unidades en el lado positivo
-    ax2.set_xticks(np.arange(-8, 8.5, 0.5))
-    ax2.set_yticks(np.arange(-8, 8.5, 0.5))
+    # Divisiones cada 0.5
+    ticks = np.arange(-8, 8.5, 0.5)
+
+    # Etiquetas solo en enteros pares negativos para X (bajo el eje X) y Y (izquierda del eje Y)
+    x_labels = [str(int(t)) if t % 2 == 0 and t < 0 else "" for t in ticks]
+    y_labels = [str(int(t)) if t % 2 == 0 and t < 0 else "" for t in ticks]
+
+    ax2.set_xticks(ticks)
+    ax2.set_xticklabels(x_labels)
+    ax2.set_yticks(ticks)
+    ax2.set_yticklabels(y_labels)
 
     ax2.grid(True)
     st.pyplot(fig2)
