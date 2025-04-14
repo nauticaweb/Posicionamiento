@@ -150,11 +150,11 @@ if st.button("Calcular"):
     st.pyplot(fig)
 
      # ===================== GRÁFICO 2: Ángulo igual a la latitud =====================
-    fig2, ax2 = plt.subplots(figsize=(6, 4))
+    fig2, ax2 = plt.subplots(figsize=(8, 3))
 
-    r = 6  # Longitud de las líneas
+    r = 8  # Longitud total de la línea horizontal (igual que el eje X del primer gráfico)
 
-    # Línea horizontal desde el origen
+    # Línea horizontal
     ax2.plot([0, r], [0, 0], color='black', linewidth=2)
 
     # Línea oblicua con ángulo igual a la latitud
@@ -163,11 +163,20 @@ if st.button("Calcular"):
     ax2.plot([0, x_angle], [0, y_angle], color='purple', linewidth=2)
 
     # Texto con el ángulo
-    ax2.text(1, 0.3, f"{abs(latitud):.2f}°", fontsize=12, color='purple')
+    ax2.text(1, 0.4, f"{abs(latitud):.2f}°", fontsize=12, color='purple')
+
+    # Marcas cada 0.5 y numeración solo en pares enteros
+    for i in np.arange(0, r + 0.1, 0.5):
+        # Línea vertical de marca
+        ax2.plot([i, i], [0, -0.15], color='black', linewidth=1)
+
+        # Números solo en pares enteros
+        if i % 2 == 0:
+            ax2.text(i, -0.35, f"{int(i)}", ha='center', va='top', fontsize=10)
 
     # Estética: sin ejes ni bordes
-    ax2.set_xlim(0, 6.5)
-    ax2.set_ylim(0, 4)
+    ax2.set_xlim(-0.5, r + 0.5)
+    ax2.set_ylim(-1, 4)
     ax2.axis('off')
     ax2.set_title("Ángulo igual a la latitud")
 
