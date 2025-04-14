@@ -150,7 +150,7 @@ if st.button("Calcular"):
     st.pyplot(fig)
 
      # ===================== GRÁFICO 2: Ángulo igual a la latitud =====================
-    fig2, ax2 = plt.subplots(figsize=(2, 1))  # Más largo, acorde a 0–8
+    fig2, ax2 = plt.subplots(figsize=(5, 4))  # Más largo, acorde a 0–8
 
     r = 8  # Un cuadrante (como de 0 a 8 en el gráfico 1)
 
