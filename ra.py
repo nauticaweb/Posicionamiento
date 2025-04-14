@@ -111,7 +111,7 @@ if st.button("Calcular"):
     ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
     x_r2 = np.array([dx2 - dy2, dx2 + dy2])
     y_r2 = m2 * x_r2 + b2
-    ax.plot(x_r2, y_r2, 'r--', linewidth=2, label='Altura 2')
+    ax.plot(x_r2, y_r2, 'r--', linewidth=2)
 
     # Desplazamiento
     ax.plot([0, dxD], [0, dyD], 'b', linewidth=2, label='Desplazamiento')
@@ -122,7 +122,7 @@ if st.button("Calcular"):
     # Recta de altura desplazada
     x_r1 = np.array([dx1n - 5, dx1n + 5])
     y_r1 = m1 * x_r1 + b1_nuevo
-    ax.plot(x_r1, y_r1, 'r--', linewidth=2, label='Altura 1 desplazada')
+    ax.plot(x_r1, y_r1, 'r--', linewidth=2)
 
     # Punto de corte nuevo
     ax.plot(x_intersec_nueva, y_intersec_nueva, 'mo', markersize=10)
