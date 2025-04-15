@@ -158,36 +158,3 @@ if st.button("Calcular"):
 
     # Mostrar gráfico
     st.pyplot(fig)
-
-     # ===================== GRÁFICO 2: Ángulo igual a la latitud =====================
-    fig2, ax2 = plt.subplots(figsize=(5, 5))  # Más largo, acorde a 0–8
-
-    r = 8  # Un cuadrante (como de 0 a 8 en el gráfico 1)
-
-    # Línea horizontal Partes Iguales
-    ax2.plot([0, r], [0, 0], color='black', linewidth=2)
-
-    # Línea oblicua Partes Aumentadas
-    x_angle = r
-    y_angle = r * np.tan(np.radians(latitud))
-    ax2.plot([0, x_angle], [0, y_angle], color='purple', linewidth=2)
-
-    # Marcas y líneas verticales hasta la oblicua
-    for i in np.arange(0, r + 0.01, 0.5):
-        y_i = i * np.tan(np.radians(latitud))
-        ax2.plot([i, i], [0, y_i], color='gray', linestyle='--', linewidth=1)
-
-        # Números solo en pares enteros debajo del eje
-        if i % 2 == 0:
-            ax2.text(i, -0.3, f"{int(i)}", ha='center', va='top', fontsize=10)
-
-    # Estética
-    ax2.set_xlim(-0.5, r + 0.5)
-    ax2.set_ylim(-0.5, max(1, y_angle + 0.5))
-    ax2.axis('off')
-
-    # Título debajo del gráfico
-    st.markdown("#### Ángulo = Latitud")
-
-    # Mostrar gráfico
-    st.pyplot(fig2)
