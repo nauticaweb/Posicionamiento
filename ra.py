@@ -29,14 +29,14 @@ with col2:
     lon_segundos = st.number_input("Longitud segundos", step=0.1, value=0.0)
 
 st.header("2. Observaciones")
-azimut1 = st.number_input("Azimut 1 (°)", step=1.0, value=0.0)
+azimut1 = st.number_input("Azimut 1 (grados)", step=1.0, value=0.0)
 dh1t = st.number_input("Diferencia de alturas 1", step=0.1, value=0.0)
 
-azimut2 = st.number_input("Azimut 2 (°)", step=1.0, value=0.0)
+azimut2 = st.number_input("Azimut 2 (grados)", step=1.0, value=0.0)
 dh2t = st.number_input("Diferencia de alturas 2", step=0.1, value=0.0)
 
 st.header("3. Desplazamiento")
-rumbo = st.number_input("Rumbo (°)", step=1.0, value=0.0)
+rumbo = st.number_input("Rumbo (grados)", step=1.0, value=0.0)
 distancia = st.number_input("Distancia navegada", step=0.1, value=0.0)
 
 # ===================== BOTÓN =====================
@@ -67,6 +67,7 @@ if st.button("Calcular"):
     # Rectas perpendiculares
     mz1 = dy1 / dx1
     mz2 = dy2 / dx2
+
     m1 = -1 / mz1
     m2 = -1 / mz2
 
@@ -110,30 +111,30 @@ if st.button("Calcular"):
     # ===================== GRÁFICO =====================
     fig, ax = plt.subplots(figsize=(10, 8))
 
+    # Ejes cartesianos
     ax.axhline(0, color='black', linewidth=1)
     ax.axvline(0, color='black', linewidth=1)
 
    
-     # Azimut 1 desde el extremo del desplazamiento
-    ax.plot([dxD, dxD + dx1], [dyD, dyD + dy1], 'y', linewidth=2, label='Azimut 1')
+    # Azimut 1 desde el extremo del desplazamiento
+    line1, = ax.plot([dxD, dxD + dx1], [dyD, dyD + dy1], 'b', linewidth=2, label='Azimut 1')
 
     # Azimut 2
-    ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
+    line2, = ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
     x_r2 = np.array([dx2 - dy2, dx2 + dy2])
     y_r2 = m2 * x_r2 + b2
-    ax.plot(x_r2, y_r2, 'r--', linewidth=2)
+    line3, = ax.plot(x_r2, y_r2, 'r--', linewidth=2)
 
     # Desplazamiento
-    ax.plot([0, dxD], [0, dyD], 'b', linewidth=2, label='Desplazamiento')
+    line4, = ax.plot([0, dxD], [0, dyD], 'm', linewidth=2, label='Desplazamiento')
 
-    
     # Recta de altura desplazada
     x_r1 = np.array([dx1n - 5, dx1n + 5])
     y_r1 = m1 * x_r1 + b1_nuevo
-    ax.plot(x_r1, y_r1, 'r--', linewidth=2)
+    line5, = ax.plot(x_r1, y_r1, 'r--', linewidth=2)
 
     # Punto de corte nuevo
-    ax.plot(x_intersec_nueva, y_intersec_nueva, 'mo', markersize=10)
+    line6, = ax.plot(x_intersec_nueva, y_intersec_nueva, 'mo', markersize=10)
     ax.text(x_intersec_nueva + 0.3, y_intersec_nueva + 0.3,
             f"Lat: {lat_intersec_nueva:.5f}\nLon: {lon_intersec_nueva:.5f}",
             fontsize=10, color='purple')
@@ -145,8 +146,17 @@ if st.button("Calcular"):
     ax.set_ylabel("Latitud")
     ax.set_title("Rectas de Altura")
     ax.grid(True)
-    ax.legend()
 
+    # Agregar la leyenda
+    ax.legend([line1, line2, line3, line4, line6], [
+       "Azimut 1", 
+       "Azimut 2", 
+       "Rectas de altura", 
+       "Desplazamiento",  
+       "Intersección"
+    ], loc='upper right', fontsize=10)
+
+    # Mostrar gráfico
     st.pyplot(fig)
 
      # ===================== GRÁFICO 2: Ángulo igual a la latitud =====================
@@ -154,10 +164,10 @@ if st.button("Calcular"):
 
     r = 8  # Un cuadrante (como de 0 a 8 en el gráfico 1)
 
-    # Línea horizontal
+    # Línea horizontal Partes Iguales
     ax2.plot([0, r], [0, 0], color='black', linewidth=2)
 
-    # Línea oblicua que forma el ángulo con la horizontal
+    # Línea oblicua Partes Aumentadas
     x_angle = r
     y_angle = r * np.tan(np.radians(latitud))
     ax2.plot([0, x_angle], [0, y_angle], color='purple', linewidth=2)
@@ -179,4 +189,5 @@ if st.button("Calcular"):
     # Título debajo del gráfico
     st.markdown("#### Ángulo = Latitud")
 
+    # Mostrar gráfico
     st.pyplot(fig2)
