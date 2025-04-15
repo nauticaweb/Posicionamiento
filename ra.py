@@ -154,7 +154,7 @@ if st.button("Calcular"):
        "Rectas de altura", 
        "Desplazamiento",  
        "Intersección"
-    ], loc='upper right', fontsize=10)
+    ], loc='upper right', fontsize=10, bbox_to_anchor=(1.05, 1))
 
     # Mostrar gráfico
     st.pyplot(fig)
@@ -179,7 +179,7 @@ if st.button("Calcular"):
 
         # Números solo en pares enteros debajo del eje
         if i % 2 == 0:
-            ax2.text(i, -0.3, f"{int(i)}", ha='center', va='top', fontsize=10, bbox_to_anchor=(1.05, 1))
+            ax2.text(i, -0.3, f"{int(i)}", ha='center', va='top', fontsize=10)
 
     # Estética
     ax2.set_xlim(-0.5, r + 0.5)
