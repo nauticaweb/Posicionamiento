@@ -154,7 +154,7 @@ if st.button("Calcular"):
        "Rectas de altura", 
        "Desplazamiento",  
        "Intersección"
-    ], loc='upper right', fontsize=10, bbox_to_anchor=(1.22, 1))
+    ], loc='upper right', fontsize=10, bbox_to_anchor=(1.25, 1))
 
     # Mostrar gráfico
     st.pyplot(fig)
