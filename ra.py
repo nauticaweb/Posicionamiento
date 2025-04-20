@@ -1,53 +1,56 @@
-# ===================== GRÁFICO =====================
-    fig, ax = plt.subplots(figsize=(10, 8))
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
 
-    # Ejes cartesianos
-    ax.axhline(0, color='black', linewidth=1)
-    ax.axvline(0, color='black', linewidth=1)
+# ===================== FUNCIONES =====================
+def gms_a_decimal(grados, minutos, segundos):
+    if grados < 0:
+        return grados - (minutos / 60) - (segundos / 3600)
+    else:
+        return grados + (minutos / 60) + (segundos / 3600)
 
-    # Azimut 1 desde el extremo del desplazamiento
-    line1, = ax.plot([dxD, dxD + dx1], [dyD, dyD + dy1], 'b', linewidth=2, label='Azimut 1')
+def decimal_a_grados_minutos(decimales):
+    grados = int(decimales)
+    minutos = (abs(decimales) - abs(grados)) * 60
+    return grados, minutos
 
-    # Azimut 2
-    line2, = ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
-    x_r2 = np.array([dx2 - dy2, dx2 + dy2])
-    y_r2 = m2 * x_r2 + b2
-    line3, = ax.plot(x_r2, y_r2, 'r--', linewidth=2)
+# ==================== INTERFAZ =====================
+st.title("Cálculo de posición por Rectas de Altura")
 
-    # Desplazamiento
-    line4, = ax.plot([0, dxD], [0, dyD], 'm', linewidth=2, label='Desplazamiento')
+st.header("1. Punto de estima")
+col1, col2 = st.columns(2)
+with col1:
+    lat_grados = st.number_input("Latitud grados", step=1, format="%d", value=0)
+    lat_minutos = st.number_input("Latitud minutos", step=1.0, value=0.0)
+    lat_segundos = st.number_input("Latitud segundos", step=0.1, value=0.0)
+with col2:
+    lon_grados = st.number_input("Longitud grados", step=1, format="%d", value=0)
+    lon_minutos = st.number_input("Longitud minutos", step=1.0, value=0.0)
+    lon_segundos = st.number_input("Longitud segundos", step=0.1, value=0.0)
 
-    # Recta de altura desplazada
-    x_r1 = np.array([dx1n - 5, dx1n + 5])
-    y_r1 = m1 * x_r1 + b1_nuevo
-    line5, = ax.plot(x_r1, y_r1, 'r--', linewidth=2)
+st.header("2. Observaciones")
+azimut1 = st.number_input("Azimut 1 (grados)", step=1.0, value=0.0)
+dh1t = st.number_input("Diferencia de alturas 1", step=0.1, value=0.0)
 
-    # Punto de corte nuevo
-    line6, = ax.plot(x_intersec_nueva, y_intersec_nueva, 'mo', markersize=10)
-    ax.text(x_intersec_nueva + 0.3, y_intersec_nueva + 0.3,
-            f"Lat: {lat_intersec_nueva:.5f}\nLon: {lon_intersec_nueva:.5f}",
-            fontsize=10, color='purple')
+azimut2 = st.number_input("Azimut 2 (grados)", step=1.0, value=0.0)
+dh2t = st.number_input("Diferencia de alturas 2", step=0.1, value=0.0)
 
-    # Redimensionar el gráfico automáticamente
-    margen = 1.5  # margen extra para no pegarse al borde
-    max_dist = max(abs(x_intersec_nueva), abs(y_intersec_nueva), 8) + margen
-    ax.set_xlim(-max_dist, max_dist)
-    ax.set_ylim(-max_dist, max_dist)
+st.header("3. Desplazamiento")
+rumbo = st.number_input("Rumbo (grados)", step=1.0, value=0.0)
+distancia = st.number_input("Distancia navegada", step=0.1, value=0.0)
 
-    ax.set_aspect('equal', adjustable='box')
-    ax.set_xlabel("Longitud")
-    ax.set_ylabel("Latitud")
-    ax.set_title("Rectas de Altura")
-    ax.grid(True)
+# ===================== BOTÓN =====================
+if st.button("Calcular"):
+    # Convertir coordenadas a decimales
+    latitud = gms_a_decimal(lat_grados, lat_minutos, lat_segundos)
+    longitud = gms_a_decimal(lon_grados, lon_minutos, lon_segundos)
 
-    # Agregar la leyenda
-    ax.legend([line1, line2, line3, line4, line6], [
-       "Azimut 1", 
-       "Azimut 2", 
-       "Rectas de altura", 
-       "Desplazamiento",  
-       "Intersección"
-    ], loc='upper right', fontsize=10, bbox_to_anchor=(1.27, 1))
+    # ================== VECTORES ==================
+    # Vector 1 (azimut 1)
+    az1 = azimut1 + 180 if dh1t < 0 else azimut1
+    dh1 = abs(dh1t / np.cos(np.radians(latitud)))
+    dx1 = dh1 * np.sin(np.radians(az1))
+    dy1 = dh1 * np.cos(np.radians(az1))
 
-    # Mostrar gráfico
-    st.pyplot(fig)
+    # Vector 2 (azimut 2)
+    az2 = azimut2 + 180 if dh2t < 0 else azimut2
