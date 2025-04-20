@@ -46,21 +46,25 @@ if st.button("Calcular"):
     longitud = gms_a_decimal(lon_grados, lon_minutos, lon_segundos)
 
     # ================== VECTORES ==================
+    # Vector 1 (azimut 1)
     az1 = azimut1 + 180 if dh1t < 0 else azimut1
     dh1 = abs(dh1t / np.cos(np.radians(latitud)))
     dx1 = dh1 * np.sin(np.radians(az1))
     dy1 = dh1 * np.cos(np.radians(az1))
 
+    # Vector 2 (azimut 2)
     az2 = azimut2 + 180 if dh2t < 0 else azimut2
     dh2 = abs(dh2t / np.cos(np.radians(latitud)))
     dx2 = dh2 * np.sin(np.radians(az2))
     dy2 = dh2 * np.cos(np.radians(az2))
 
+    # Vector desplazamiento
     dD = abs(distancia / np.cos(np.radians(latitud)))
     dxD = dD * np.sin(np.radians(rumbo))
     dyD = dD * np.cos(np.radians(rumbo))
 
     # ================== RECTAS DE ALTURA ==================
+    # Rectas perpendiculares
     mz1 = dy1 / dx1
     mz2 = dy2 / dx2
 
@@ -70,13 +74,16 @@ if st.button("Calcular"):
     b1 = dy1 - m1 * dx1
     b2 = dy2 - m2 * dx2
 
+    # Intersección original
     x_intersec = (b2 - b1) / (m1 - m2)
     y_intersec = m1 * x_intersec + b1
 
+    # Nueva posición del vector azimut 1 tras desplazamiento
     dx1n = dxD + dx1
     dy1n = dyD + dy1
     b1_nuevo = dy1n - m1 * dx1n
 
+    # Nueva intersección con la recta del azimut 2
     x_intersec_nueva = (b2 - b1_nuevo) / (m1 - m2)
     y_intersec_nueva = m1 * x_intersec_nueva + b1_nuevo
 
@@ -107,35 +114,36 @@ if st.button("Calcular"):
     ax.axvline(0, color='black', linewidth=1)
 
     # Azimut 1 desde el extremo del desplazamiento
-    line1, = ax.plot([dxD, dxD + dx1], [dyD, dyD + dy1], 'b', linewidth=2, label='Azimut 1')
+    ax.plot([dxD, dxD + dx1], [dyD, dyD + dy1], 'b', linewidth=2, label='Azimut 1')
 
     # Azimut 2
-    line2, = ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
+    ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
 
-    # Recta de altura 2 (extendida hacia atrás)
-    extension2 = 3  # unidades hacia atrás
-    x_fin2 = dx2
-    x_inicio2 = dx2 - extension2 * np.cos(np.arctan(m2))
-    x_r2 = np.array([x_inicio2, x_fin2])
-    y_r2 = m2 * x_r2 + b2
-    line3, = ax.plot(x_r2, y_r2, 'r--', linewidth=2)
+    # Recta de altura 2 ajustada
+    dx2_end = dx2
+    dy2_end = dy2
+    b2_nuevo = dy2_end - m2 * dx2_end
+
+    # Extensión que pasa por el punto de corte
+    x_r2 = np.array([dx2_end, x_intersec_nueva])
+    y_r2 = m2 * x_r2 + b2_nuevo
+    ax.plot(x_r2, y_r2, 'r--', linewidth=2)
 
     # Desplazamiento
-    line4, = ax.plot([0, dxD], [0, dyD], 'm', linewidth=2, label='Desplazamiento')
+    ax.plot([0, dxD], [0, dyD], 'm', linewidth=2, label='Desplazamiento')
 
-    # Recta de altura 1 (extendida hacia atrás hasta el punto de corte)
-    extension = 3  # unidades hacia atrás
-    x_inicio = dx1n - extension * np.cos(np.arctan(m1))
-    x_r1 = np.array([x_inicio, x_intersec_nueva])
+    # Recta de altura 1 ajustada
+    x_r1 = np.array([dx1n, x_intersec_nueva])
     y_r1 = m1 * x_r1 + b1_nuevo
-    line5, = ax.plot(x_r1, y_r1, 'r--', linewidth=2)
+    ax.plot(x_r1, y_r1, 'r--', linewidth=2)
 
     # Punto de corte nuevo
-    line6, = ax.plot(x_intersec_nueva, y_intersec_nueva, 'mo', markersize=10)
+    ax.plot(x_intersec_nueva, y_intersec_nueva, 'mo', markersize=10)
     ax.text(x_intersec_nueva + 0.3, y_intersec_nueva + 0.3,
             f"Lat: {lat_intersec_nueva:.5f}\nLon: {lon_intersec_nueva:.5f}",
             fontsize=10, color='purple')
 
+    # Redimensionar automáticamente el gráfico
     margen = 1.5
     max_dist = max(abs(x_intersec_nueva), abs(y_intersec_nueva), 8) + margen
     ax.set_xlim(-max_dist, max_dist)
@@ -147,12 +155,6 @@ if st.button("Calcular"):
     ax.set_title("Rectas de Altura")
     ax.grid(True)
 
-    ax.legend([line1, line2, line3, line4, line6], [
-        "Azimut 1",
-        "Azimut 2",
-        "Rectas de altura",
-        "Desplazamiento",
-        "Intersección"
-    ], loc='upper right', fontsize=10, bbox_to_anchor=(1.27, 1))
+    ax.legend(loc='upper right', fontsize=10, bbox_to_anchor=(1.27, 1))
 
     st.pyplot(fig)
