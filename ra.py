@@ -46,25 +46,21 @@ if st.button("Calcular"):
     longitud = gms_a_decimal(lon_grados, lon_minutos, lon_segundos)
 
     # ================== VECTORES ==================
-    # Vector 1 (azimut 1)
     az1 = azimut1 + 180 if dh1t < 0 else azimut1
     dh1 = abs(dh1t / np.cos(np.radians(latitud)))
     dx1 = dh1 * np.sin(np.radians(az1))
     dy1 = dh1 * np.cos(np.radians(az1))
 
-    # Vector 2 (azimut 2)
     az2 = azimut2 + 180 if dh2t < 0 else azimut2
     dh2 = abs(dh2t / np.cos(np.radians(latitud)))
     dx2 = dh2 * np.sin(np.radians(az2))
     dy2 = dh2 * np.cos(np.radians(az2))
 
-    # Vector desplazamiento
     dD = abs(distancia / np.cos(np.radians(latitud)))
     dxD = dD * np.sin(np.radians(rumbo))
     dyD = dD * np.cos(np.radians(rumbo))
 
     # ================== RECTAS DE ALTURA ==================
-    # Rectas perpendiculares
     mz1 = dy1 / dx1
     mz2 = dy2 / dx2
 
@@ -74,16 +70,13 @@ if st.button("Calcular"):
     b1 = dy1 - m1 * dx1
     b2 = dy2 - m2 * dx2
 
-    # Intersección original
     x_intersec = (b2 - b1) / (m1 - m2)
     y_intersec = m1 * x_intersec + b1
 
-    # Nueva posición del vector azimut 1 tras desplazamiento
     dx1n = dxD + dx1
     dy1n = dyD + dy1
     b1_nuevo = dy1n - m1 * dx1n
 
-    # Nueva intersección con la recta del azimut 2
     x_intersec_nueva = (b2 - b1_nuevo) / (m1 - m2)
     y_intersec_nueva = m1 * x_intersec_nueva + b1_nuevo
 
@@ -110,7 +103,6 @@ if st.button("Calcular"):
     # ===================== GRÁFICO =====================
     fig, ax = plt.subplots(figsize=(10, 8))
 
-    # Ejes cartesianos
     ax.axhline(0, color='black', linewidth=1)
     ax.axvline(0, color='black', linewidth=1)
 
@@ -126,8 +118,10 @@ if st.button("Calcular"):
     # Desplazamiento
     line4, = ax.plot([0, dxD], [0, dyD], 'm', linewidth=2, label='Desplazamiento')
 
-    # Recta de altura desplazada
-    x_r1 = np.array([dx1n - 5, dx1n + 5])
+    # Recta de altura 1 (extendida hacia atrás hasta el punto de corte)
+    extension = 3  # unidades hacia atrás
+    x_inicio = dx1n - extension * np.cos(np.arctan(m1))
+    x_r1 = np.array([x_inicio, x_intersec_nueva])
     y_r1 = m1 * x_r1 + b1_nuevo
     line5, = ax.plot(x_r1, y_r1, 'r--', linewidth=2)
 
@@ -137,7 +131,6 @@ if st.button("Calcular"):
             f"Lat: {lat_intersec_nueva:.5f}\nLon: {lon_intersec_nueva:.5f}",
             fontsize=10, color='purple')
 
-    # Redimensionar automáticamente el gráfico
     margen = 1.5
     max_dist = max(abs(x_intersec_nueva), abs(y_intersec_nueva), 8) + margen
     ax.set_xlim(-max_dist, max_dist)
