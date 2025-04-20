@@ -71,19 +71,15 @@ if st.button("Calcular"):
     m1 = -1 / mz1
     m2 = -1 / mz2
 
-    b1 = dy1 - m1 * dx1
-    b2 = dy2 - m2 * dx2
-
-    # Intersección original
-    x_intersec = (b2 - b1) / (m1 - m2)
-    y_intersec = m1 * x_intersec + b1
-
-    # Nueva posición del vector azimut 1 tras desplazamiento
+    # Punto final del vector 1 (desplazamiento + azimut 1)
     dx1n = dxD + dx1
     dy1n = dyD + dy1
     b1_nuevo = dy1n - m1 * dx1n
 
-    # Nueva intersección con la recta del azimut 2
+    # Recta 2 pasa por final del vector 2 (desde el origen)
+    b2 = dy2 - m2 * dx2
+
+    # Intersección
     x_intersec_nueva = (b2 - b1_nuevo) / (m1 - m2)
     y_intersec_nueva = m1 * x_intersec_nueva + b1_nuevo
 
@@ -110,6 +106,7 @@ if st.button("Calcular"):
     # ===================== GRÁFICO =====================
     fig, ax = plt.subplots(figsize=(10, 8))
 
+    # Ejes cartesianos
     ax.axhline(0, color='black', linewidth=1)
     ax.axvline(0, color='black', linewidth=1)
 
@@ -119,31 +116,26 @@ if st.button("Calcular"):
     # Azimut 2
     ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
 
-    # Recta de altura 2 ajustada
-    dx2_end = dx2
-    dy2_end = dy2
-    b2_nuevo = dy2_end - m2 * dx2_end
-
-    # Extensión que pasa por el punto de corte
-    x_r2 = np.array([dx2_end, x_intersec_nueva])
-    y_r2 = m2 * x_r2 + b2_nuevo
-    ax.plot(x_r2, y_r2, 'r--', linewidth=2)
-
     # Desplazamiento
     ax.plot([0, dxD], [0, dyD], 'm', linewidth=2, label='Desplazamiento')
 
-    # Recta de altura 1 ajustada
-    x_r1 = np.array([dx1n, x_intersec_nueva])
+    # Recta de altura 1 (extendida)
+    x_r1 = np.linspace(dx1n - 10, dx1n + 10, 100)
     y_r1 = m1 * x_r1 + b1_nuevo
     ax.plot(x_r1, y_r1, 'r--', linewidth=2)
 
-    # Punto de corte nuevo
+    # Recta de altura 2 (extendida)
+    x_r2 = np.linspace(dx2 - 10, dx2 + 10, 100)
+    y_r2 = m2 * x_r2 + b2
+    ax.plot(x_r2, y_r2, 'r--', linewidth=2)
+
+    # Punto de corte
     ax.plot(x_intersec_nueva, y_intersec_nueva, 'mo', markersize=10)
     ax.text(x_intersec_nueva + 0.3, y_intersec_nueva + 0.3,
             f"Lat: {lat_intersec_nueva:.5f}\nLon: {lon_intersec_nueva:.5f}",
             fontsize=10, color='purple')
 
-    # Redimensionar automáticamente el gráfico
+    # Redimensionar gráfico
     margen = 1.5
     max_dist = max(abs(x_intersec_nueva), abs(y_intersec_nueva), 8) + margen
     ax.set_xlim(-max_dist, max_dist)
