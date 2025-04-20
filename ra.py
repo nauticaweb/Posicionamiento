@@ -1,121 +1,10 @@
-import streamlit as st
-import numpy as np
-import matplotlib.pyplot as plt
-
-# ===================== FUNCIONES =====================
-def gms_a_decimal(grados, minutos, segundos):
-    if grados < 0:
-        return grados - (minutos / 60) - (segundos / 3600)
-    else:
-        return grados + (minutos / 60) + (segundos / 3600)
-
-def decimal_a_grados_minutos(decimales):
-    grados = int(decimales)
-    minutos = (abs(decimales) - abs(grados)) * 60
-    return grados, minutos
-
-# ==================== INTERFAZ =====================
-st.title("Cálculo de posición por Rectas de Altura")
-
-st.header("1. Punto de estima")
-col1, col2 = st.columns(2)
-with col1:
-    lat_grados = st.number_input("Latitud grados", step=1, format="%d", value=0)
-    lat_minutos = st.number_input("Latitud minutos", step=1.0, value=0.0)
-    lat_segundos = st.number_input("Latitud segundos", step=0.1, value=0.0)
-with col2:
-    lon_grados = st.number_input("Longitud grados", step=1, format="%d", value=0)
-    lon_minutos = st.number_input("Longitud minutos", step=1.0, value=0.0)
-    lon_segundos = st.number_input("Longitud segundos", step=0.1, value=0.0)
-
-st.header("2. Observaciones")
-azimut1 = st.number_input("Azimut 1 (grados)", step=1.0, value=0.0)
-dh1t = st.number_input("Diferencia de alturas 1", step=0.1, value=0.0)
-
-azimut2 = st.number_input("Azimut 2 (grados)", step=1.0, value=0.0)
-dh2t = st.number_input("Diferencia de alturas 2", step=0.1, value=0.0)
-
-st.header("3. Desplazamiento")
-rumbo = st.number_input("Rumbo (grados)", step=1.0, value=0.0)
-distancia = st.number_input("Distancia navegada", step=0.1, value=0.0)
-
-# ===================== BOTÓN =====================
-if st.button("Calcular"):
-    # Convertir coordenadas a decimales
-    latitud = gms_a_decimal(lat_grados, lat_minutos, lat_segundos)
-    longitud = gms_a_decimal(lon_grados, lon_minutos, lon_segundos)
-
-    # ================== VECTORES ==================
-    # Vector 1 (azimut 1)
-    az1 = azimut1 + 180 if dh1t < 0 else azimut1
-    dh1 = abs(dh1t / np.cos(np.radians(latitud)))
-    dx1 = dh1 * np.sin(np.radians(az1))
-    dy1 = dh1 * np.cos(np.radians(az1))
-
-    # Vector 2 (azimut 2)
-    az2 = azimut2 + 180 if dh2t < 0 else azimut2
-    dh2 = abs(dh2t / np.cos(np.radians(latitud)))
-    dx2 = dh2 * np.sin(np.radians(az2))
-    dy2 = dh2 * np.cos(np.radians(az2))
-
-    # Vector desplazamiento
-    dD = abs(distancia / np.cos(np.radians(latitud)))
-    dxD = dD * np.sin(np.radians(rumbo))
-    dyD = dD * np.cos(np.radians(rumbo))
-
-    # ================== RECTAS DE ALTURA ==================
-    # Rectas perpendiculares
-    mz1 = dy1 / dx1
-    mz2 = dy2 / dx2
-
-    m1 = -1 / mz1
-    m2 = -1 / mz2
-
-    b1 = dy1 - m1 * dx1
-    b2 = dy2 - m2 * dx2
-
-    # Intersección original
-    x_intersec = (b2 - b1) / (m1 - m2)
-    y_intersec = m1 * x_intersec + b1
-
-    # Nueva posición del vector azimut 1 tras desplazamiento
-    dx1n = dxD + dx1
-    dy1n = dyD + dy1
-    b1_nuevo = dy1n - m1 * dx1n
-
-    # Nueva intersección con la recta del azimut 2
-    x_intersec_nueva = (b2 - b1_nuevo) / (m1 - m2)
-    y_intersec_nueva = m1 * x_intersec_nueva + b1_nuevo
-
-    # ===================== RESULTADOS =====================
-    st.subheader("4. Posición observada")
-
-    y_i_nueva = y_intersec_nueva * np.cos(np.radians(latitud))
-    lat_intersec_nueva = latitud + (y_i_nueva / 60)
-    lon_intersec_nueva = longitud - (x_intersec_nueva / 60)
-
-# Corregir longitud si sale del rango 180
-    if lon_intersec_nueva < -180:
-        lon_intersec_nueva += 360
-    elif lon_intersec_nueva > 180:
-        lon_intersec_nueva -= 360
-
-    lat_gn, lat_mn = decimal_a_grados_minutos(lat_intersec_nueva)
-    lon_gn, lon_mn = decimal_a_grados_minutos(lon_intersec_nueva)
-    NSn = "N" if lat_intersec_nueva > 0 else "S"
-    EWn = "W" if lon_intersec_nueva > 0 else "E"
-
-    st.write(f"Latitud: `{abs(lat_gn)}° {lat_mn:.2f}' {NSn}`")
-    st.write(f"Longitud: `{abs(lon_gn)}° {lon_mn:.2f}' {EWn}`")
-
-    # ===================== GRÁFICO =====================
+# ===================== GRÁFICO =====================
     fig, ax = plt.subplots(figsize=(10, 8))
 
     # Ejes cartesianos
     ax.axhline(0, color='black', linewidth=1)
     ax.axvline(0, color='black', linewidth=1)
 
-   
     # Azimut 1 desde el extremo del desplazamiento
     line1, = ax.plot([dxD, dxD + dx1], [dyD, dyD + dy1], 'b', linewidth=2, label='Azimut 1')
 
@@ -139,8 +28,12 @@ if st.button("Calcular"):
             f"Lat: {lat_intersec_nueva:.5f}\nLon: {lon_intersec_nueva:.5f}",
             fontsize=10, color='purple')
 
-    ax.set_xlim(-8, 8)
-    ax.set_ylim(-8, 8)
+    # Redimensionar el gráfico automáticamente
+    margen = 1.5  # margen extra para no pegarse al borde
+    max_dist = max(abs(x_intersec_nueva), abs(y_intersec_nueva), 8) + margen
+    ax.set_xlim(-max_dist, max_dist)
+    ax.set_ylim(-max_dist, max_dist)
+
     ax.set_aspect('equal', adjustable='box')
     ax.set_xlabel("Longitud")
     ax.set_ylabel("Latitud")
