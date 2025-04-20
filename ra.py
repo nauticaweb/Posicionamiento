@@ -94,7 +94,6 @@ if st.button("Calcular"):
     lat_intersec_nueva = latitud + (y_i_nueva / 60)
     lon_intersec_nueva = longitud - (x_intersec_nueva / 60)
 
-# Corregir longitud si sale del rango 180
     if lon_intersec_nueva < -180:
         lon_intersec_nueva += 360
     elif lon_intersec_nueva > 180:
@@ -115,7 +114,6 @@ if st.button("Calcular"):
     ax.axhline(0, color='black', linewidth=1)
     ax.axvline(0, color='black', linewidth=1)
 
-   
     # Azimut 1 desde el extremo del desplazamiento
     line1, = ax.plot([dxD, dxD + dx1], [dyD, dyD + dy1], 'b', linewidth=2, label='Azimut 1')
 
@@ -139,24 +137,24 @@ if st.button("Calcular"):
             f"Lat: {lat_intersec_nueva:.5f}\nLon: {lon_intersec_nueva:.5f}",
             fontsize=10, color='purple')
 
-    ax.set_xlim(-8, 8)
-    ax.set_ylim(-8, 8)
+    # Redimensionar automáticamente el gráfico
+    margen = 1.5
+    max_dist = max(abs(x_intersec_nueva), abs(y_intersec_nueva), 8) + margen
+    ax.set_xlim(-max_dist, max_dist)
+    ax.set_ylim(-max_dist, max_dist)
+
     ax.set_aspect('equal', adjustable='box')
     ax.set_xlabel("Longitud")
     ax.set_ylabel("Latitud")
     ax.set_title("Rectas de Altura")
     ax.grid(True)
 
-    # Agregar la leyenda
     ax.legend([line1, line2, line3, line4, line6], [
-       "Azimut 1", 
-       "Azimut 2", 
-       "Rectas de altura", 
-       "Desplazamiento",  
-       "Intersección"
+        "Azimut 1",
+        "Azimut 2",
+        "Rectas de altura",
+        "Desplazamiento",
+        "Intersección"
     ], loc='upper right', fontsize=10, bbox_to_anchor=(1.27, 1))
 
-    # Mostrar gráfico
     st.pyplot(fig)
-
-     
