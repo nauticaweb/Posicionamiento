@@ -54,3 +54,107 @@ if st.button("Calcular"):
 
     # Vector 2 (azimut 2)
     az2 = azimut2 + 180 if dh2t < 0 else azimut2
+    dh2 = abs(dh2t / np.cos(np.radians(latitud)))
+    dx2 = dh2 * np.sin(np.radians(az2))
+    dy2 = dh2 * np.cos(np.radians(az2))
+
+    # Vector desplazamiento
+    dD = abs(distancia / np.cos(np.radians(latitud)))
+    dxD = dD * np.sin(np.radians(rumbo))
+    dyD = dD * np.cos(np.radians(rumbo))
+
+    # ================== RECTAS DE ALTURA ==================
+    # Rectas perpendiculares
+    mz1 = dy1 / dx1
+    mz2 = dy2 / dx2
+
+    m1 = -1 / mz1
+    m2 = -1 / mz2
+
+    b1 = dy1 - m1 * dx1
+    b2 = dy2 - m2 * dx2
+
+    # Intersección original
+    x_intersec = (b2 - b1) / (m1 - m2)
+    y_intersec = m1 * x_intersec + b1
+
+    # Nueva posición del vector azimut 1 tras desplazamiento
+    dx1n = dxD + dx1
+    dy1n = dyD + dy1
+    b1_nuevo = dy1n - m1 * dx1n
+
+    # Nueva intersección con la recta del azimut 2
+    x_intersec_nueva = (b2 - b1_nuevo) / (m1 - m2)
+    y_intersec_nueva = m1 * x_intersec_nueva + b1_nuevo
+
+    # ===================== RESULTADOS =====================
+    st.subheader("4. Posición observada")
+
+    y_i_nueva = y_intersec_nueva * np.cos(np.radians(latitud))
+    lat_intersec_nueva = latitud + (y_i_nueva / 60)
+    lon_intersec_nueva = longitud - (x_intersec_nueva / 60)
+
+    if lon_intersec_nueva < -180:
+        lon_intersec_nueva += 360
+    elif lon_intersec_nueva > 180:
+        lon_intersec_nueva -= 360
+
+    lat_gn, lat_mn = decimal_a_grados_minutos(lat_intersec_nueva)
+    lon_gn, lon_mn = decimal_a_grados_minutos(lon_intersec_nueva)
+    NSn = "N" if lat_intersec_nueva > 0 else "S"
+    EWn = "W" if lon_intersec_nueva > 0 else "E"
+
+    st.write(f"Latitud: `{abs(lat_gn)}° {lat_mn:.2f}' {NSn}`")
+    st.write(f"Longitud: `{abs(lon_gn)}° {lon_mn:.2f}' {EWn}`")
+
+    # ===================== GRÁFICO =====================
+    fig, ax = plt.subplots(figsize=(10, 8))
+
+    # Ejes cartesianos
+    ax.axhline(0, color='black', linewidth=1)
+    ax.axvline(0, color='black', linewidth=1)
+
+    # Azimut 1 desde el extremo del desplazamiento
+    line1, = ax.plot([dxD, dxD + dx1], [dyD, dyD + dy1], 'b', linewidth=2, label='Azimut 1')
+
+    # Azimut 2
+    line2, = ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
+    x_r2 = np.array([dx2 - dy2, dx2 + dy2])
+    y_r2 = m2 * x_r2 + b2
+    line3, = ax.plot(x_r2, y_r2, 'r--', linewidth=2)
+
+    # Desplazamiento
+    line4, = ax.plot([0, dxD], [0, dyD], 'm', linewidth=2, label='Desplazamiento')
+
+    # Recta de altura desplazada
+    x_r1 = np.array([dx1n - 5, dx1n + 5])
+    y_r1 = m1 * x_r1 + b1_nuevo
+    line5, = ax.plot(x_r1, y_r1, 'r--', linewidth=2)
+
+    # Punto de corte nuevo
+    line6, = ax.plot(x_intersec_nueva, y_intersec_nueva, 'mo', markersize=10)
+    ax.text(x_intersec_nueva + 0.3, y_intersec_nueva + 0.3,
+            f"Lat: {lat_intersec_nueva:.5f}\nLon: {lon_intersec_nueva:.5f}",
+            fontsize=10, color='purple')
+
+    # Redimensionar automáticamente el gráfico
+    margen = 1.5
+    max_dist = max(abs(x_intersec_nueva), abs(y_intersec_nueva), 8) + margen
+    ax.set_xlim(-max_dist, max_dist)
+    ax.set_ylim(-max_dist, max_dist)
+
+    ax.set_aspect('equal', adjustable='box')
+    ax.set_xlabel("Longitud")
+    ax.set_ylabel("Latitud")
+    ax.set_title("Rectas de Altura")
+    ax.grid(True)
+
+    ax.legend([line1, line2, line3, line4, line6], [
+        "Azimut 1",
+        "Azimut 2",
+        "Rectas de altura",
+        "Desplazamiento",
+        "Intersección"
+    ], loc='upper right', fontsize=10, bbox_to_anchor=(1.27, 1))
+
+    st.pyplot(fig)
