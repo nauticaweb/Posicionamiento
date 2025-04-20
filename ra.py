@@ -111,7 +111,12 @@ if st.button("Calcular"):
 
     # Azimut 2
     line2, = ax.plot([0, dx2], [0, dy2], 'g', linewidth=2, label='Azimut 2')
-    x_r2 = np.array([dx2 - dy2, dx2 + dy2])
+
+    # Recta de altura 2 (extendida hacia atrás)
+    extension2 = 3  # unidades hacia atrás
+    x_fin2 = dx2
+    x_inicio2 = dx2 - extension2 * np.cos(np.arctan(m2))
+    x_r2 = np.array([x_inicio2, x_fin2])
     y_r2 = m2 * x_r2 + b2
     line3, = ax.plot(x_r2, y_r2, 'r--', linewidth=2)
 
