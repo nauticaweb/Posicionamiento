@@ -1,7 +1,7 @@
 
 # Posicionamiento AstronÃ³mico â€“ Calculadora NÃ¡utica en Streamlit
 
-![ResoluciÃ³n del ejercicio](./imagenes/5311_resolucion.png)
+![ResoluciÃ³n del ejercicio](./imagenes/IMG_20250522_175311_resolucion.png)
 
 **Resuelve ejercicios reales de los exÃ¡menes de PatrÃ³n de Yate y navegaciÃ³n astronÃ³mica sin GPS. Con cÃ¡lculo analÃ­tico + soluciÃ³n grÃ¡fica.**
 
@@ -43,10 +43,10 @@ Esta herramienta simula exactamente esa situaciÃ³n y te permite:
 
 ## Capturas de pantalla
 
-![Pantalla de entrada de datos](./imagenes/5311_entrada_datos.png)  
+![Pantalla de entrada de datos](./imagenes/IMG_20250522_175417.jpg)  
 *Pantalla de ingreso de datos*
 
-![SoluciÃ³n grÃ¡fica del ejercicio](./imagenes/5311_resolucion.png)  
+![SoluciÃ³n grÃ¡fica del ejercicio](./imagenes/IMG_20250522_175347.jpg)  
 *ResoluciÃ³n final con grÃ¡fico de intersecciÃ³n de rectas*
 
 ---
