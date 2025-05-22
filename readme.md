@@ -77,7 +77,7 @@ streamlit run app.py
 
 ## Enlace directo a la versión online
 
-**[Accede a la aplicación web aquí](https://nauticaweb.streamlit.app/)**
+**[Accede a la aplicación web aquí](https://rectasaltura.streamlit.app//)**
 
 *(No necesitas instalar nada, solo entrar desde el navegador)*
 
