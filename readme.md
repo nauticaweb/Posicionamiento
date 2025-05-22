@@ -1,5 +1,5 @@
 
-# Rectas de altura. Calculadora NÃ¡utica en Streamlit
+# Rectas de altura. Calculadora NÃ¡utica en Python 
 
 ![ResoluciÃ³n del ejercicio](./imagenes/IMG_20250522_175311.jpg)
 
