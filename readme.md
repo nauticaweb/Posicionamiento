@@ -2,7 +2,7 @@
 
 ![Resolución del ejercicio](./imagenes/IMG_20250522_175311.jpg)
 
-**Resuelve ejercicios reales de los exámenes de Patrón de Yate y navegación astronómica sin GPS. Con cálculo analítico + solución gráfica.**
+**Resuelve ejercicios reales de los exámenes de Capitán de Yate y navegación astronómica sin GPS. Con cálculo analítico + solución gráfica.**
 
 ---
 
