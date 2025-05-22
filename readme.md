@@ -1,18 +1,19 @@
-# Posicionamiento Astronómico – Calculadora Náutica en Streamlit
 
-![Demo](https://user-images.githubusercontent.com/00000000/demo.gif) <!-- Reemplaza con una captura de pantalla o GIF de tu app -->
+# Posicionamiento AstronÃ³mico â€“ Calculadora NÃ¡utica en Streamlit
 
-**Resuelve ejercicios reales de los exámenes de Patrón de Yate y navegación astronómica sin GPS. Con cálculo analítico + solución gráfica.**
+![ResoluciÃ³n del ejercicio](./imagenes/5311_resolucion.png)
+
+**Resuelve ejercicios reales de los exÃ¡menes de PatrÃ³n de Yate y navegaciÃ³n astronÃ³mica sin GPS. Con cÃ¡lculo analÃ­tico + soluciÃ³n grÃ¡fica.**
 
 ---
 
-## Qué es esta herramienta
+## QuÃ© es esta herramienta
 
-**Posicionamiento** es una aplicación web escrita en **Python** usando la librería **Streamlit** que te permite resolver, de manera rápida y visual, ejercicios de **posicionamiento por rectas de altura** con observación a dos astros.
+**Posicionamiento** es una aplicaciÃ³n web escrita en **Python** usando la librerÃ­a **Streamlit** que te permite resolver, de manera rÃ¡pida y visual, ejercicios de **posicionamiento por rectas de altura** con observaciÃ³n a dos astros.
 
-Está diseñada especialmente para:
+EstÃ¡ diseÃ±ada especialmente para:
 
-- **Estudiantes de náutica deportiva** (Patrón de Yate, Capitán de Yate)
+- **Estudiantes de nÃ¡utica deportiva** (PatrÃ³n de Yate, CapitÃ¡n de Yate)
 - **Navegantes profesionales** (Marina Mercante, titulaciones STCW)
 - **Marinos curiosos o aventureros** que quieran aprender a posicionarse **sin GPS**
 
@@ -20,37 +21,37 @@ Está diseñada especialmente para:
 
 ## Funcionalidades
 
-- Ingreso intuitivo de datos astronómicos (latitud estimada, azimut, diferencia de alturas, etc.)
-- Gráficos interactivos de las rectas de altura y vectores implicados
-- Cálculo automático de la **posición observada** tras la doble observación
-- Solución tanto **numérica** como **visual**, ideal para comprender el razonamiento
+- Ingreso intuitivo de datos astronÃ³micos (latitud estimada, azimut, diferencia de alturas, etc.)
+- GrÃ¡ficos interactivos de las rectas de altura y vectores implicados
+- CÃ¡lculo automÃ¡tico de la **posiciÃ³n observada** tras la doble observaciÃ³n
+- SoluciÃ³n tanto **numÃ©rica** como **visual**, ideal para comprender el razonamiento
 - Interfaz web moderna con Streamlit: corre en el navegador sin instalar nada complicado
 
 ---
 
-## ¿Por qué usarla?
+## Â¿Por quÃ© usarla?
 
-> "¿Y si se apaga el GPS en medio del océano?"
+> "Â¿Y si se apaga el GPS en medio del ocÃ©ano?"
 
-Esta herramienta simula exactamente esa situación y te permite:
-- **Entrenar** para exámenes reales de navegación astronómica
-- **Ver gráficamente** cómo se intersectan las rectas de altura
-- **Comparar tu solución manual** con la solución del programa
-- **Resolver ejercicios reales** con una herramienta moderna, visual y didáctica
+Esta herramienta simula exactamente esa situaciÃ³n y te permite:
+- **Entrenar** para exÃ¡menes reales de navegaciÃ³n astronÃ³mica
+- **Ver grÃ¡ficamente** cÃ³mo se intersectan las rectas de altura
+- **Comparar tu soluciÃ³n manual** con la soluciÃ³n del programa
+- **Resolver ejercicios reales** con una herramienta moderna, visual y didÃ¡ctica
 
 ---
 
 ## Capturas de pantalla
 
-![Interfaz de ingreso](https://user-images.githubusercontent.com/00000000/form.png)  
+![Pantalla de entrada de datos](./imagenes/5311_entrada_datos.png)  
 *Pantalla de ingreso de datos*
 
-![Gráfico resultante](https://user-images.githubusercontent.com/00000000/plot.png)  
-*Solución gráfica del ejercicio*
+![SoluciÃ³n grÃ¡fica del ejercicio](./imagenes/5311_resolucion.png)  
+*ResoluciÃ³n final con grÃ¡fico de intersecciÃ³n de rectas*
 
 ---
 
-## Cómo usar
+## CÃ³mo usar
 
 1. Clona el repositorio:
 
@@ -65,19 +66,19 @@ cd Posicionamiento
 pip install -r requirements.txt
 ```
 
-3. Ejecuta la aplicación:
+3. Ejecuta la aplicaciÃ³n:
 
 ```bash
 streamlit run app.py
 ```
 
-¡Y listo! Se abrirá automáticamente en tu navegador.
+Â¡Y listo! Se abrirÃ¡ automÃ¡ticamente en tu navegador.
 
 ---
 
-## Enlace directo a la versión online
+## Enlace directo a la versiÃ³n online
 
-**[Accede a la aplicación web aquí](https://rectasaltura.streamlit.app//)**
+**[Accede a la aplicaciÃ³n web aquÃ­](https://nauticaweb.streamlit.app/)**
 
 *(No necesitas instalar nada, solo entrar desde el navegador)*
 
@@ -85,14 +86,14 @@ streamlit run app.py
 
 ## Autor
 
-Desarrollado por **Javier**, apasionado por la náutica, la educación y la tecnología.
+Desarrollado por **Javier**, apasionado por la nÃ¡utica, la educaciÃ³n y la tecnologÃ­a.
 
 ---
 
 ## Licencia
 
-MIT — Eres libre de usar, mejorar y compartir este proyecto.
+MIT â€” Eres libre de usar, mejorar y compartir este proyecto.
 
 ---
 
-> **¿Te resultó útil?** No olvides dejar una estrella en GitHub o compartirlo con tus compañeros de navegación.
+> **Â¿Te resultÃ³ Ãºtil?** No olvides dejar una estrella en GitHub o compartirlo con tus compaÃ±eros de navegaciÃ³n.
