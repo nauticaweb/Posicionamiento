@@ -85,7 +85,7 @@ streamlit run app.py
 
 ## Autor
 
-Desarrollado por **Javier**, apasionado por la náutica, la educación y la tecnología.
+Desarrollado por **Javier Hernández**, apasionado por la náutica, la educación y la tecnología.
 
 ---
 
