@@ -1,5 +1,5 @@
 
-# Posicionamiento AstronÃ³mico â€“ Calculadora NÃ¡utica en Streamlit
+# Rectas de altura. Calculadora NÃ¡utica en Streamlit
 
 ![ResoluciÃ³n del ejercicio](./imagenes/IMG_20250522_175311.jpg)
 
